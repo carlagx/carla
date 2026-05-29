@@ -1,0 +1,3 @@
+# MP3 Transcription Tool dependencies
+openai-whisper>=20231117
+ffmpeg-python>=0.2.0
