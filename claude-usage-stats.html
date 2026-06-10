@@ -16,94 +16,67 @@
     padding: 36px 24px;
   }
 
-  /* ── Header ─────────────────────────────────────────────────────── */
-  .header {
-    text-align: center;
-    margin-bottom: 40px;
-  }
-  .header h1 {
-    font-size: 26px;
-    font-weight: 700;
-    color: #1a202c;
-    margin-bottom: 6px;
-    letter-spacing: -.3px;
-  }
+  .header { text-align: center; margin-bottom: 36px; }
+  .header h1 { font-size: 26px; font-weight: 700; color: #1a202c; margin-bottom: 6px; }
   .header h1 span { color: #5a67d8; }
   .header p { color: #718096; font-size: 13px; }
 
-  /* ── Cards ──────────────────────────────────────────────────────── */
+  .notice {
+    max-width: 1100px; margin: 0 auto 30px;
+    background: #ebf8ff; border: 1px solid #bee3f8; border-left: 4px solid #3182ce;
+    border-radius: 8px; padding: 14px 18px;
+    font-size: 13px; color: #2c5282; line-height: 1.6;
+  }
+  .notice strong { font-weight: 700; }
+
+  /* ── Cards ── */
   .cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    max-width: 1100px;
-    margin: 0 auto 36px;
+    gap: 16px; max-width: 1100px; margin: 0 auto 32px;
   }
   .card {
-    background: #ffffff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 20px 22px;
+    background: #fff; border: 1px solid #e2e8f0;
+    border-radius: 12px; padding: 20px 22px;
     box-shadow: 0 1px 3px rgba(0,0,0,.06);
   }
   .card .label {
-    font-size: 11px;
-    font-weight: 600;
-    color: #a0aec0;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    margin-bottom: 8px;
+    font-size: 11px; font-weight: 600; color: #a0aec0;
+    text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px;
   }
-  .card .value {
-    font-size: 26px;
-    font-weight: 700;
-    line-height: 1;
-    color: #1a202c;
-  }
-  .card .sub { font-size: 12px; color: #718096; margin-top: 6px; }
-  .card.accent-purple .value { color: #553c9a; }
-  .card.accent-blue   .value { color: #2b6cb0; }
-  .card.accent-green  .value { color: #276749; }
-  .card.accent-orange .value { color: #c05621; }
+  .card .value { font-size: 26px; font-weight: 700; line-height: 1; color: #1a202c; }
+  .card .sub   { font-size: 12px; color: #718096; margin-top: 6px; }
+  .card.c-purple .value { color: #553c9a; }
+  .card.c-blue   .value { color: #2b6cb0; }
+  .card.c-teal   .value { color: #285e61; }
+  .card.c-orange .value { color: #c05621; }
 
-  /* ── Stacked bar ─────────────────────────────────────────────────── */
+  /* ── Stacked bar ── */
   .bar-section {
-    max-width: 1100px;
-    margin: 0 auto 28px;
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 22px 24px;
+    max-width: 1100px; margin: 0 auto 24px;
+    background: #fff; border: 1px solid #e2e8f0;
+    border-radius: 12px; padding: 22px 24px;
     box-shadow: 0 1px 3px rgba(0,0,0,.06);
   }
-  .bar-section h2 {
-    font-size: 14px; font-weight: 600; color: #4a5568; margin-bottom: 16px;
-  }
+  .bar-section h2 { font-size: 14px; font-weight: 600; color: #4a5568; margin-bottom: 16px; }
   .stacked-bar {
     height: 28px; border-radius: 6px; overflow: hidden;
     display: flex; border: 1px solid #e2e8f0; margin-bottom: 14px;
   }
   .stacked-bar div { height: 100%; }
-  .legend {
-    display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: #4a5568;
-  }
+  .legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: 12.5px; color: #4a5568; }
   .legend-item { display: flex; align-items: center; gap: 6px; }
   .legend-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
 
-  /* ── Charts ──────────────────────────────────────────────────────── */
+  /* ── Charts ── */
   .charts {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 18px;
-    max-width: 1100px;
-    margin: 0 auto 28px;
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 18px; max-width: 1100px; margin: 0 auto 24px;
   }
   .chart-full { grid-column: 1 / -1; }
   .chart-box {
-    background: #fff;
-    border: 1px solid #e2e8f0;
-    border-radius: 12px;
-    padding: 22px 24px;
+    background: #fff; border: 1px solid #e2e8f0;
+    border-radius: 12px; padding: 22px 24px;
     box-shadow: 0 1px 3px rgba(0,0,0,.06);
   }
   .chart-box h2 {
@@ -113,9 +86,9 @@
   .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
   canvas { max-height: 260px; }
 
-  /* ── Table ───────────────────────────────────────────────────────── */
+  /* ── Table ── */
   .table-wrap {
-    max-width: 1100px; margin: 0 auto 36px;
+    max-width: 1100px; margin: 0 auto 32px;
     background: #fff; border: 1px solid #e2e8f0;
     border-radius: 12px; overflow: hidden;
     box-shadow: 0 1px 3px rgba(0,0,0,.06);
@@ -139,18 +112,16 @@
     font-variant-numeric: tabular-nums; white-space: nowrap;
   }
   td:first-child { text-align: left; font-weight: 500; color: #1a202c; }
-  td.cost  { color: #276749; font-weight: 600; }
   td.total { color: #553c9a; font-weight: 600; }
+  td.cache { color: #276749; }
   tfoot td {
     background: #ebf4ff; font-weight: 700; color: #1a202c;
     padding: 12px 18px; border-top: 2px solid #bee3f8;
   }
-  tfoot td.cost  { color: #276749; }
   tfoot td.total { color: #553c9a; }
+  tfoot td.cache { color: #276749; }
 
-  .footer {
-    text-align: center; color: #a0aec0; font-size: 11.5px; margin-top: 8px;
-  }
+  .footer { text-align: center; color: #a0aec0; font-size: 11.5px; margin-top: 8px; }
 
   @media (max-width: 640px) {
     .charts { grid-template-columns: 1fr; }
@@ -162,29 +133,35 @@
 
 <div class="header">
   <h1>Claude Code &mdash; <span>Nutzungsstatistik</span></h1>
-  <p id="subtitle">Erstellt am 2026-06-08 &nbsp;&middot;&nbsp; Daten ab erstem Nutzungstag &nbsp;&middot;&nbsp; Quelle: ~/.claude/projects/</p>
+  <p>Erstellt am 2026-06-08 &nbsp;&middot;&nbsp; Daten ab erstem Nutzungstag &nbsp;&middot;&nbsp; Quelle: ~/.claude/projects/</p>
+</div>
+
+<div class="notice">
+  <strong>Claude Pro-Abo:</strong> Du zahlst eine pauschale Monatsgebuehr &mdash; keine tokenbasierten Kosten.
+  Die unten gezeigten Token-Zahlen sind Verbrauchsmengen, keine Rechnungsposten.
+  Eine Kostenspalte entfaellt daher.
 </div>
 
 <!-- Cards -->
 <div class="cards">
-  <div class="card accent-purple">
+  <div class="card c-purple">
     <div class="label">Gesamt-Tokens</div>
-    <div class="value" id="c-total-tokens">–</div>
-    <div class="sub" id="c-tok-sub"></div>
+    <div class="value" id="c-total"></div>
+    <div class="sub" id="c-total-sub"></div>
   </div>
-  <div class="card accent-green">
-    <div class="label">Gesamt-Kosten</div>
-    <div class="value" id="c-total-cost">–</div>
-    <div class="sub">USD (sonnet-4-6 Preise)</div>
+  <div class="card c-teal">
+    <div class="label">Cache-Anteil</div>
+    <div class="value" id="c-cache"></div>
+    <div class="sub">Cache-Read + Cache-Write</div>
   </div>
-  <div class="card accent-blue">
+  <div class="card c-blue">
     <div class="label">Aktive Tage</div>
-    <div class="value" id="c-days">–</div>
+    <div class="value" id="c-days"></div>
     <div class="sub" id="c-days-sub"></div>
   </div>
-  <div class="card accent-orange">
+  <div class="card c-orange">
     <div class="label">Chats gesamt</div>
-    <div class="value" id="c-chats">–</div>
+    <div class="value" id="c-chats"></div>
     <div class="sub">Einzigartige Sessions</div>
   </div>
 </div>
@@ -199,16 +176,16 @@
 <!-- Charts -->
 <div class="charts">
   <div class="chart-box chart-full">
-    <h2><span class="dot" style="background:#805ad5"></span> Tokens pro Tag (gestapelt)</h2>
+    <h2><span class="dot" style="background:#805ad5"></span> Token-Verbrauch pro Tag (gestapelt)</h2>
     <canvas id="chartTokens"></canvas>
-  </div>
-  <div class="chart-box">
-    <h2><span class="dot" style="background:#38a169"></span> Kosten pro Tag (USD)</h2>
-    <canvas id="chartCost"></canvas>
   </div>
   <div class="chart-box">
     <h2><span class="dot" style="background:#3182ce"></span> Chats pro Tag</h2>
     <canvas id="chartChats"></canvas>
+  </div>
+  <div class="chart-box">
+    <h2><span class="dot" style="background:#38a169"></span> Output-Tokens pro Tag</h2>
+    <canvas id="chartOutput"></canvas>
   </div>
 </div>
 
@@ -225,20 +202,20 @@
         <th>Cache-Write</th>
         <th>Cache-Read</th>
         <th>Gesamt-Tokens</th>
-        <th>Kosten (USD)</th>
       </tr>
     </thead>
-    <tbody id="table-body"></tbody>
-    <tfoot id="table-foot"></tfoot>
+    <tbody id="tbody"></tbody>
+    <tfoot  id="tfoot"></tfoot>
   </table>
 </div>
 
 <div class="footer">
-  Preismodell claude-sonnet-4-6: Input $3/1M &nbsp;&middot;&nbsp; Output $15/1M &nbsp;&middot;&nbsp; Cache-Write $3.75/1M &nbsp;&middot;&nbsp; Cache-Read $0.30/1M
+  Token-Quelle: lokale JSONL-Dateien unter ~/.claude/projects/ &nbsp;&middot;&nbsp;
+  Fuer Daten von anderen Geraeten bitte ~/.claude/projects/ dorthin kopieren und hier einpflegen.
 </div>
 
 <script>
-// ── Daten ─────────────────────────────────────────────────────────────────────
+// ── Daten (aus ~/.claude/projects/ JSONL) ─────────────────────────────────────
 const RAW = {
   "2026-06-08": {
     chats: 1,
@@ -246,184 +223,125 @@ const RAW = {
     output: 53337,
     cache_create: 289235,
     cache_read: 1864211,
-    total: 2206882,
-    cost: 2.444247
+    total: 2206882
   }
 };
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-const fmt  = n => n.toLocaleString("de-DE");
-const fmtC = n => "$" + n.toFixed(4);
+const fmt = n => n.toLocaleString("de-DE");
+const pct = (a, b) => b > 0 ? (a / b * 100).toFixed(1) + "%" : "0%";
 
-// ── Aggregieren ───────────────────────────────────────────────────────────────
-const days    = Object.keys(RAW).sort();
-const totTok  = days.reduce((s, d) => s + RAW[d].total,  0);
-const totCost = days.reduce((s, d) => s + RAW[d].cost,   0);
-const totChat = days.reduce((s, d) => s + RAW[d].chats,  0);
-const totIn   = days.reduce((s, d) => s + RAW[d].input,  0);
-const totOut  = days.reduce((s, d) => s + RAW[d].output, 0);
-const totCW   = days.reduce((s, d) => s + RAW[d].cache_create, 0);
-const totCR   = days.reduce((s, d) => s + RAW[d].cache_read,   0);
+// ── Aggregate ─────────────────────────────────────────────────────────────────
+const days   = Object.keys(RAW).sort();
+const totTok = days.reduce((s, d) => s + RAW[d].total,        0);
+const totIn  = days.reduce((s, d) => s + RAW[d].input,        0);
+const totOut = days.reduce((s, d) => s + RAW[d].output,       0);
+const totCW  = days.reduce((s, d) => s + RAW[d].cache_create, 0);
+const totCR  = days.reduce((s, d) => s + RAW[d].cache_read,   0);
+const totChat= days.reduce((s, d) => s + RAW[d].chats,        0);
+const totCache = totCW + totCR;
 
-// ── Summary Cards ──────────────────────────────────────────────────────────────
-document.getElementById("c-total-tokens").textContent = fmt(totTok);
-document.getElementById("c-tok-sub").textContent =
-  fmt(totOut) + " Output · " + fmt(totIn) + " Input";
-document.getElementById("c-total-cost").textContent = fmtC(totCost);
-document.getElementById("c-days").textContent = days.length;
-document.getElementById("c-days-sub").textContent =
-  days[0] + (days.length > 1 ? " – " + days[days.length-1] : "");
-document.getElementById("c-chats").textContent = totChat;
+// ── Cards ─────────────────────────────────────────────────────────────────────
+document.getElementById("c-total").textContent     = fmt(totTok);
+document.getElementById("c-total-sub").textContent = fmt(totOut) + " Output · " + fmt(totIn) + " Input";
+document.getElementById("c-cache").textContent     = pct(totCache, totTok);
+document.getElementById("c-days").textContent      = days.length;
+document.getElementById("c-days-sub").textContent  = days[0] + (days.length > 1 ? " – " + days[days.length-1] : "");
+document.getElementById("c-chats").textContent     = totChat;
 
-// ── Stacked Bar ───────────────────────────────────────────────────────────────
-const stackDefs = [
+// ── Stacked bar ───────────────────────────────────────────────────────────────
+const defs = [
   { label: "Input",       color: "#4299e1", value: totIn  },
   { label: "Output",      color: "#805ad5", value: totOut },
   { label: "Cache-Write", color: "#ed8936", value: totCW  },
   { label: "Cache-Read",  color: "#48bb78", value: totCR  }
 ];
-const barEl  = document.getElementById("stacked-bar");
-const legEl  = document.getElementById("stacked-legend");
-stackDefs.forEach(s => {
-  const pct = totTok > 0 ? (s.value / totTok * 100).toFixed(1) : 0;
-  const div = document.createElement("div");
-  div.style.cssText = "flex:" + s.value + ";background:" + s.color;
-  div.title = s.label + ": " + fmt(s.value) + " (" + pct + "%)";
-  barEl.appendChild(div);
+const barEl = document.getElementById("stacked-bar");
+const legEl = document.getElementById("stacked-legend");
+defs.forEach(s => {
+  const p = pct(s.value, totTok);
+  const d = document.createElement("div");
+  d.style.cssText = "flex:" + s.value + ";background:" + s.color;
+  d.title = s.label + ": " + fmt(s.value) + " (" + p + ")";
+  barEl.appendChild(d);
   legEl.innerHTML +=
     '<div class="legend-item">' +
-      '<span class="legend-dot" style="background:' + s.color + '"></span>' +
-      s.label + ': <strong style="color:#1a202c;margin-left:4px">' + fmt(s.value) + '</strong>' +
-      '<span style="color:#a0aec0;margin-left:3px">(' + pct + '%)</span>' +
-    '</div>';
+    '<span class="legend-dot" style="background:' + s.color + '"></span>' +
+    s.label + ': <strong style="color:#1a202c;margin-left:4px">' + fmt(s.value) + '</strong>' +
+    '<span style="color:#a0aec0;margin-left:3px">(' + p + ')</span></div>';
 });
 
-// ── Chart.js Defaults (Light) ─────────────────────────────────────────────────
+// ── Chart.js defaults (light) ─────────────────────────────────────────────────
 Chart.defaults.color = "#4a5568";
 Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
 Chart.defaults.font.size = 12;
-
-const gridColor = "#e2e8f0";
-
-const baseOpts = (yLabel) => ({
-  responsive: true,
-  maintainAspectRatio: true,
-  plugins: {
-    legend: { display: false },
-    tooltip: {
-      backgroundColor: "#fff",
-      borderColor: "#e2e8f0",
-      borderWidth: 1,
-      titleColor: "#1a202c",
-      bodyColor: "#4a5568",
-      padding: 10,
-      cornerRadius: 8,
-      boxShadow: "0 2px 8px rgba(0,0,0,.1)"
-    }
-  },
-  scales: {
-    x: { grid: { color: gridColor }, ticks: { maxRotation: 45 } },
-    y: {
-      grid: { color: gridColor }, beginAtZero: true,
-      title: { display: true, text: yLabel, color: "#a0aec0" }
-    }
-  }
+const grid = "#e2e8f0";
+const tip  = {
+  backgroundColor: "#fff", borderColor: "#e2e8f0", borderWidth: 1,
+  titleColor: "#1a202c", bodyColor: "#4a5568", padding: 10, cornerRadius: 8
+};
+const axes = (yLbl, stacked) => ({
+  x: { grid: { color: grid }, stacked: !!stacked },
+  y: { grid: { color: grid }, beginAtZero: true, stacked: !!stacked,
+       title: { display: true, text: yLbl, color: "#a0aec0" },
+       ticks: { callback: v => fmt(v) } }
 });
 
-// Chart 1: Tokens gestapelt
+// Chart 1 – Tokens gestapelt
 new Chart(document.getElementById("chartTokens"), {
   type: "bar",
   data: {
     labels: days,
     datasets: [
-      { label: "Cache-Read",  data: days.map(d => RAW[d].cache_read),    backgroundColor: "#c6f6d5", borderColor: "#48bb78", borderWidth: 1 },
-      { label: "Cache-Write", data: days.map(d => RAW[d].cache_create),  backgroundColor: "#feebc8", borderColor: "#ed8936", borderWidth: 1 },
-      { label: "Output",      data: days.map(d => RAW[d].output),        backgroundColor: "#e9d8fd", borderColor: "#805ad5", borderWidth: 1 },
-      { label: "Input",       data: days.map(d => RAW[d].input),         backgroundColor: "#bee3f8", borderColor: "#4299e1", borderWidth: 1 }
+      { label: "Cache-Read",  data: days.map(d => RAW[d].cache_read),   backgroundColor: "#c6f6d5", borderColor: "#48bb78", borderWidth: 1 },
+      { label: "Cache-Write", data: days.map(d => RAW[d].cache_create), backgroundColor: "#feebc8", borderColor: "#ed8936", borderWidth: 1 },
+      { label: "Output",      data: days.map(d => RAW[d].output),       backgroundColor: "#e9d8fd", borderColor: "#805ad5", borderWidth: 1 },
+      { label: "Input",       data: days.map(d => RAW[d].input),        backgroundColor: "#bee3f8", borderColor: "#4299e1", borderWidth: 1 }
     ]
   },
   options: {
-    ...baseOpts("Tokens"),
+    responsive: true, maintainAspectRatio: true,
     plugins: {
-      ...baseOpts("Tokens").plugins,
-      legend: {
-        display: true, position: "top",
-        labels: { color: "#4a5568", boxWidth: 12, padding: 16 }
-      },
-      tooltip: {
-        ...baseOpts("Tokens").plugins.tooltip,
-        callbacks: { label: ctx => " " + ctx.dataset.label + ": " + fmt(ctx.parsed.y) }
-      }
+      legend: { display: true, position: "top", labels: { color: "#4a5568", boxWidth: 12, padding: 16 } },
+      tooltip: { ...tip, callbacks: { label: ctx => " " + ctx.dataset.label + ": " + fmt(ctx.parsed.y) } }
     },
-    scales: {
-      x: { ...baseOpts("Tokens").scales.x, stacked: true },
-      y: { ...baseOpts("Tokens").scales.y, stacked: true, ticks: { callback: v => fmt(v) } }
-    }
+    scales: axes("Tokens", true)
   }
 });
 
-// Chart 2: Kosten
-new Chart(document.getElementById("chartCost"), {
-  type: "bar",
-  data: {
-    labels: days,
-    datasets: [{
-      label: "Kosten (USD)",
-      data: days.map(d => RAW[d].cost),
-      backgroundColor: "#c6f6d5",
-      borderColor: "#38a169",
-      borderWidth: 2,
-      borderRadius: 6
-    }]
-  },
-  options: {
-    ...baseOpts("USD"),
-    plugins: {
-      ...baseOpts("USD").plugins,
-      tooltip: {
-        ...baseOpts("USD").plugins.tooltip,
-        callbacks: { label: ctx => " $" + ctx.parsed.y.toFixed(4) }
-      }
-    },
-    scales: {
-      ...baseOpts("USD").scales,
-      y: { ...baseOpts("USD").scales.y, ticks: { callback: v => "$" + v.toFixed(2) } }
-    }
-  }
-});
-
-// Chart 3: Chats
+// Chart 2 – Chats
 new Chart(document.getElementById("chartChats"), {
   type: "bar",
   data: {
     labels: days,
-    datasets: [{
-      label: "Chats",
-      data: days.map(d => RAW[d].chats),
-      backgroundColor: "#bee3f8",
-      borderColor: "#3182ce",
-      borderWidth: 2,
-      borderRadius: 6
-    }]
+    datasets: [{ label: "Chats", data: days.map(d => RAW[d].chats),
+      backgroundColor: "#bee3f8", borderColor: "#3182ce", borderWidth: 2, borderRadius: 6 }]
   },
   options: {
-    ...baseOpts("Sessions"),
-    plugins: {
-      ...baseOpts("Sessions").plugins,
-      tooltip: {
-        ...baseOpts("Sessions").plugins.tooltip,
-        callbacks: { label: ctx => " " + ctx.parsed.y + " Chat(s)" }
-      }
-    },
-    scales: {
-      ...baseOpts("Sessions").scales,
-      y: { ...baseOpts("Sessions").scales.y, ticks: { stepSize: 1 } }
-    }
+    responsive: true, maintainAspectRatio: true,
+    plugins: { legend: { display: false }, tooltip: { ...tip, callbacks: { label: ctx => " " + ctx.parsed.y + " Chat(s)" } } },
+    scales: { x: { grid: { color: grid } }, y: { grid: { color: grid }, beginAtZero: true,
+      title: { display: true, text: "Sessions", color: "#a0aec0" }, ticks: { stepSize: 1 } } }
+  }
+});
+
+// Chart 3 – Output-Tokens
+new Chart(document.getElementById("chartOutput"), {
+  type: "bar",
+  data: {
+    labels: days,
+    datasets: [{ label: "Output-Tokens", data: days.map(d => RAW[d].output),
+      backgroundColor: "#c6f6d5", borderColor: "#38a169", borderWidth: 2, borderRadius: 6 }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: true,
+    plugins: { legend: { display: false }, tooltip: { ...tip, callbacks: { label: ctx => " " + fmt(ctx.parsed.y) } } },
+    scales: axes("Tokens")
   }
 });
 
 // ── Tabelle ───────────────────────────────────────────────────────────────────
-const tbody = document.getElementById("table-body");
+const tbody = document.getElementById("tbody");
 days.forEach(d => {
   const r = RAW[d];
   tbody.innerHTML +=
@@ -432,22 +350,18 @@ days.forEach(d => {
     "<td>" + r.chats + "</td>" +
     "<td>" + fmt(r.input) + "</td>" +
     "<td>" + fmt(r.output) + "</td>" +
-    "<td>" + fmt(r.cache_create) + "</td>" +
-    "<td>" + fmt(r.cache_read) + "</td>" +
+    '<td class="cache">' + fmt(r.cache_create) + "</td>" +
+    '<td class="cache">' + fmt(r.cache_read) + "</td>" +
     '<td class="total">' + fmt(r.total) + "</td>" +
-    '<td class="cost">' + fmtC(r.cost) + "</td>" +
     "</tr>";
 });
-document.getElementById("table-foot").innerHTML =
+document.getElementById("tfoot").innerHTML =
   "<tr>" +
-  "<td>GESAMT</td>" +
-  "<td>" + totChat + "</td>" +
-  "<td>" + fmt(totIn) + "</td>" +
-  "<td>" + fmt(totOut) + "</td>" +
-  "<td>" + fmt(totCW) + "</td>" +
-  "<td>" + fmt(totCR) + "</td>" +
+  "<td>GESAMT</td><td>" + totChat + "</td>" +
+  "<td>" + fmt(totIn) + "</td><td>" + fmt(totOut) + "</td>" +
+  '<td class="cache">' + fmt(totCW) + "</td>" +
+  '<td class="cache">' + fmt(totCR) + "</td>" +
   '<td class="total">' + fmt(totTok) + "</td>" +
-  '<td class="cost">' + fmtC(totCost) + "</td>" +
   "</tr>";
 </script>
 </body>
