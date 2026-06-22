@@ -283,6 +283,14 @@ namespace detail {
     _pimpl->AsyncCall("set_weather_parameters", weather);
   }
 
+  float Client::GetIMUSensorGravity() {
+    return _pimpl->CallAndWait<float>("get_imu_gravity");
+  }
+
+  void Client::SetIMUSensorGravity(float gravity) {
+    _pimpl->AsyncCall("set_imu_gravity", gravity);
+  }
+
   bool Client::IsWeatherEnabled() {
     return _pimpl->CallAndWait<bool>("is_weather_enabled");
   }
@@ -296,6 +304,11 @@ namespace detail {
   rpc::VehiclePhysicsControl Client::GetVehiclePhysicsControl(
       rpc::ActorId vehicle) const {
     return _pimpl->CallAndWait<carla::rpc::VehiclePhysicsControl>("get_physics_control", vehicle);
+  }
+
+  rpc::VehicleTelemetryData Client::GetVehicleTelemetryData(
+      rpc::ActorId vehicle) const {
+    return _pimpl->CallAndWait<carla::rpc::VehicleTelemetryData>("get_telemetry_data", vehicle);
   }
 
   rpc::VehicleLightState Client::GetVehicleLightState(
@@ -355,7 +368,7 @@ namespace detail {
       if (attachment_type == rpc::AttachmentType::SpringArm ||
           attachment_type == rpc::AttachmentType::SpringArmGhost)
       {
-        const auto a = transform.location.MakeSafeUnitVector(std::numeric_limits<float>::epsilon());
+        const auto a = transform.location.MakeUnitVector(std::numeric_limits<float>::epsilon());
         const auto z = geom::Vector3D(0.0f, 0.f, 1.0f);
         constexpr float OneEps = 1.0f - std::numeric_limits<float>::epsilon();
         if (geom::Math::Dot(a, z) > OneEps) {
