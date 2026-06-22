@@ -514,8 +514,12 @@ else
 
   pushd ${XERCESC_SRC_DIR}/build >/dev/null
 
+  # -pthread is required so Xerces' test/sample executables link the pthread
+  # symbols on glibc >= 2.34 (Ubuntu 22.04+), where libpthread became a stub and
+  # implicit pthread linkage no longer works. Without it the build aborts even
+  # though the only artifact CARLA needs, libxerces-c.a, builds fine.
   cmake -G "Ninja" \
-      -DCMAKE_CXX_FLAGS="-std=c++14 -fPIC -w" \
+      -DCMAKE_CXX_FLAGS="-std=c++14 -fPIC -w -pthread" \
       -DCMAKE_INSTALL_PREFIX="../../${XERCESC_INSTALL_DIR}" \
       -DCMAKE_BUILD_TYPE=Release \
       -DBUILD_SHARED_LIBS=OFF \
@@ -532,13 +536,15 @@ else
   pushd ${XERCESC_SRC_DIR}/build >/dev/null
 
   cmake -G "Ninja" \
-      -DCMAKE_CXX_FLAGS="-std=c++14 -stdlib=libc++ -fPIC -w ${UNREAL_HOSTED_CFLAGS} -I${LLVM_INCLUDE} -L${LLVM_LIBPATH}" \
+      -DCMAKE_CXX_FLAGS="-std=c++14 -stdlib=libc++ -fPIC -w -pthread ${UNREAL_HOSTED_CFLAGS} -I${LLVM_INCLUDE} -L${LLVM_LIBPATH}" \
       -DCMAKE_INSTALL_PREFIX="../../${XERCESC_INSTALL_SERVER_DIR}" \
       -DCMAKE_BUILD_TYPE=Release \
       -DBUILD_SHARED_LIBS=OFF \
       -Dtranscoder=gnuiconv \
       -Dnetwork=OFF \
       ..
+  # -pthread for the same reason as the client build above (this libc++ variant
+  # is the one that actually hits the glibc >= 2.34 pthread link failure).
   ninja
   ninja install
 
