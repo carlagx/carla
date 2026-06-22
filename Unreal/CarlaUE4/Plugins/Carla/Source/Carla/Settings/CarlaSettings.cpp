@@ -78,6 +78,12 @@ static void LoadSettingsFromConfig(
     ConfigFile.GetString(S_CARLA_SERVER, TEXT("PrimaryIP"), Tmp);
     Settings.PrimaryIP = TCHAR_TO_UTF8(*Tmp);
     ConfigFile.GetInt(S_CARLA_SERVER,    TEXT("PrimaryPort"), Settings.PrimaryPort);
+    FString HostTmp;
+    ConfigFile.GetString(S_CARLA_SERVER, TEXT("ListenHost"), HostTmp);
+    if (!HostTmp.IsEmpty())
+    {
+      Settings.ListenHost = TCHAR_TO_UTF8(*HostTmp);
+    }
   }
   ConfigFile.GetBool(S_CARLA_SERVER, TEXT("SynchronousMode"), Settings.bSynchronousMode);
   ConfigFile.GetBool(S_CARLA_SERVER, TEXT("DisableRendering"), Settings.bDisableRendering);
@@ -146,6 +152,11 @@ void UCarlaSettings::LoadSettings()
     {
       PrimaryPort = Value;
     }
+    FString HostTmp;
+    if (FParse::Value(FCommandLine::Get(), TEXT("-listen-host="), HostTmp))
+    {
+      ListenHost = TCHAR_TO_UTF8(*HostTmp);
+    }
     FString StringQualityLevel;
     if (FParse::Value(FCommandLine::Get(), TEXT("-quality-level="), StringQualityLevel))
     {
@@ -189,6 +200,7 @@ void UCarlaSettings::LogSettings() const
       TEXT("== CARLA Settings =============================================================="));
   UE_LOG(LogCarla, Log, TEXT("Last settings file loaded: %s"), *CurrentFileName);
   UE_LOG(LogCarla, Log, TEXT("[%s]"), S_CARLA_SERVER);
+  UE_LOG(LogCarla, Log, TEXT("Listen Host = %s"), *FString(ListenHost.c_str()));
   UE_LOG(LogCarla, Log, TEXT("RPC Port = %d"), RPCPort);
   UE_LOG(LogCarla, Log, TEXT("Streaming Port = %d"), StreamingPort);
   UE_LOG(LogCarla, Log, TEXT("Secondary Port = %d"), SecondaryPort);

@@ -40,6 +40,9 @@ client = carla.Client('localhost', 2000)
 
 This sets up the client to communicate with a CARLA server running on `localhost`, the local machine. Alternatively, the IP address of a network machine can be used if running the client on a separate machine. The second argument is the port number. By default, the CARLA server will run on port 2000, you can alter this in the settings when you launch CARLA if necessary. 
 
+!!! Note
+    For security, the server binds its listeners (RPC, streaming and multi-GPU) to `127.0.0.1` (localhost) by default, so only clients on the same machine can connect. CARLA's RPC/streaming protocol has no authentication or encryption, so exposing it on a network grants full control of the simulation. To accept clients from other machines, launch with `--listen-host=<ip>` (e.g. `--listen-host=0.0.0.0` to listen on all interfaces) or set `ListenHost` under `[CARLA/Server]` in `CarlaSettings.ini`. When possible, prefer keeping the default and reaching a remote server through an SSH tunnel or VPN.
+
 The client object can be used for a number of functions including loading new maps, recording the simulation and initialising the traffic manager:
 
 ```py

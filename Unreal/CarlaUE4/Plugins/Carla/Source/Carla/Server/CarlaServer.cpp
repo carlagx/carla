@@ -115,13 +115,13 @@ class FCarlaServer::FPimpl: public carla::rpc::RpcServerInterface
 {
 public:
 
-  FPimpl(uint16_t RPCPort, uint16_t StreamingPort, uint16_t SecondaryPort)
-    : Server(RPCPort),
-      StreamingServer(StreamingPort),
+  FPimpl(const std::string &Host, uint16_t RPCPort, uint16_t StreamingPort, uint16_t SecondaryPort)
+    : Server(Host, RPCPort),
+      StreamingServer(Host, StreamingPort),
       BroadcastStream(StreamingServer.MakeStream())
   {
     // we need to create shared_ptr from the router for some handlers to live
-    SecondaryServer = std::make_shared<carla::multigpu::Router>(SecondaryPort);
+    SecondaryServer = std::make_shared<carla::multigpu::Router>(Host, SecondaryPort);
     SecondaryServer->SetCallbacks();
     BindActions();
 
@@ -3801,16 +3801,17 @@ FCarlaServer::~FCarlaServer() {
   Stop();
 }
 
-FDataMultiStream FCarlaServer::Start(uint16_t RPCPort, uint16_t StreamingPort, uint16_t SecondaryPort)
+FDataMultiStream FCarlaServer::Start(const std::string &Host, uint16_t RPCPort, uint16_t StreamingPort, uint16_t SecondaryPort)
 {
-  Pimpl = MakeUnique<FPimpl>(RPCPort, StreamingPort, SecondaryPort);
+  Pimpl = MakeUnique<FPimpl>(Host, RPCPort, StreamingPort, SecondaryPort);
   StreamingPort = Pimpl->StreamingServer.GetLocalEndpoint().port();
   SecondaryPort = Pimpl->SecondaryServer->GetLocalEndpoint().port();
 
   UE_LOG(
       LogCarlaServer,
       Log,
-      TEXT("Initialized CarlaServer: Ports(rpc=%d, streaming=%d, secondary=%d)"),
+      TEXT("Initialized CarlaServer: Host(%s) Ports(rpc=%d, streaming=%d, secondary=%d)"),
+      *FString(Host.c_str()),
       RPCPort,
       StreamingPort,
       SecondaryPort);
