@@ -45,8 +45,11 @@ public:
     while(counter < MIN_TRY_COUNT) {
       try {
 
-        /// Create server instance.
-        server = new ::rpc::server(RPCPort);
+        /// Create server instance. Bind to localhost only: the TM RPC has no
+        /// authentication or encryption, and the address advertised to clients
+        /// via GetLocalIP()/AddTrafficManagerRunning() is already the loopback
+        /// address, so it must not listen on all interfaces.
+        server = new ::rpc::server("127.0.0.1", RPCPort);
 
       } catch(std::exception) {
         using namespace std::chrono_literals;
