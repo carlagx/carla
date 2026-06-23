@@ -78,6 +78,12 @@ private:
 
 public:
 
+  /// IP/host the server binds its listeners (RPC, streaming, multi-GPU) to.
+  /// Default 127.0.0.1 (localhost only) for security. Set to 0.0.0.0 to listen
+  /// on all interfaces. Configurable via [CARLA/Server] ListenHost in the INI
+  /// file or --listen-host=<ip> on the command line.
+  std::string ListenHost = "127.0.0.1";
+
   /// World port to listen for client connections.
   UPROPERTY(Category = "CARLA Server", VisibleAnywhere, meta = (EditCondition = bUseNetworking))
   uint32 RPCPort = 2000u;
