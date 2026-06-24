@@ -1,89 +1,134 @@
-# Prompt: CARLA-Paketgröße reduzieren (nur ausgewählte Maps cooken)
+# Prompt: CARLA-Paketgröße umfassend reduzieren
 
 Wiederverwendbarer Prompt, um die Größe des aus diesem Repo gebauten Dist-/Release-Pakets
-(`make package`) deutlich zu reduzieren. Parametrisiert über die Liste der zu behaltenden Maps.
-Auf einem frischen Clone einem Agenten geben oder selbst abarbeiten.
+(`make package`) deutlich zu reduzieren. Deckt alle am Repo **verifizierten** Hebel ab,
+nach gemessener Wirkung sortiert. Auf einem frischen Clone einem Agenten geben oder selbst
+abarbeiten. Parametrisiert über die Keep-Listen (Maps / Fahrzeuge / Fußgänger).
 
 ---
 
 ```
-Ziel: Die Größe des aus diesem CARLA-Repo gebauten Dist-/Release-Pakets
-(`make package`) deutlich reduzieren, indem nur eine konfigurierbare Auswahl
-an Maps gecookt wird.
+Ziel: Das aus diesem CARLA-Repo gebaute Dist-Paket (`make package`) deutlich
+verkleinern. KEIN --packages= angeben (sonst kommen Zusatz-Maps rein). Package.sh
+löscht den Build-Ordner vorher -> jedes make package cookt sauber neu.
 
-ZU BEHALTENDE MAPS: Town01, Town04
-(Anpassen nach Bedarf. Town01 = klein/schnell, gut als Standard-Startmap.)
+KEEP-LISTEN (anpassen):
+  Maps:       Town01, Town04
+  Fahrzeuge:  vehicle.tesla.model3, vehicle.audi.a2, vehicle.lincoln.mkz_2020,
+              vehicle.dodge.charger_police, vehicle.carlamotors.firetruck,
+              vehicle.harley-davidson.low_rider, vehicle.diamondback.century
+  Fußgänger:  BP_Walker_Female1_v1, BP_Walker_Male1_v1
 
-KONTEXT (so entsteht die Größe):
-- `make package` ruft Util/BuildTools/Package.sh -> RunUAT.sh BuildCookRun auf.
-  Gecookt werden genau die Maps aus der `MapsToCook`-Liste in
-  Unreal/CarlaUE4/Config/DefaultGame.ini. Das ist der HAUPT-Größentreiber.
-- Standardmäßig sind 6 Towns gelistet (Town01-05 + Town10HD, je Standard + _Opt).
-  Town03 und Town10HD sind die größten Posten.
-- Town11/12/13/15 sind NICHT im Basispaket (separate "Additional Maps" über
-  *.Package.json + --packages=). Nicht anfassen.
-- Die Standard-Startmap steht in
-  Unreal/CarlaUE4/Config/DefaultEngine.ini [GameMapsSettings].
-  WICHTIG: Wird die aktuelle Default-Map nicht mehr gecookt, startet der Server
-  NICHT. Default-Map muss eine der behaltenen Maps sein.
-- Package.sh löscht den Build-Ordner zu Beginn (rm -Rf RELEASE_BUILD_FOLDER),
-  also erzeugt jedes `make package` ein sauberes Paket ohne Reste alter Maps.
-  Beim Bauen KEIN --packages= angeben.
+WICHTIG - WO DIE GRÖSSE STECKT (gemessen, nicht raten):
+- Maps sind NICHT der Haupttreiber (Town-Reduktion brachte im Tarball nur ~100 MB).
+- Echte Brocken im gecookten Paket (~13 GB extrahiert):
+    Static/ 7,9 GB (Building 1,8 / Pedestrian 1,4 / Vegetation 1,2 / Car 0,9 /
+                    Hair 0,69 / Truck 0,5 ...), Debug-Symbole 1,6 GB, HDMaps .pcd 1,6 GB.
+- Immer am ECHTEN gebauten Paket messen (du -sh, find ... -size), nicht an Quell-Assets
+  (Quelle ist viel größer; gecookt wird nur, was referenziert ist).
 
-AUFGABE:
-1. In Unreal/CarlaUE4/Config/DefaultGame.ini die `MapsToCook`-Liste so kürzen,
-   dass NUR die zu behaltenden Maps (je Standard + _Opt) übrig bleiben.
-   Diese drei Support-Einträge MÜSSEN bleiben (für OpenDRIVE-Import und
-   Semantik-/Sensor-Postprocessing):
-     +MapsToCook=(FilePath="/Game/Carla/Maps/OpenDriveMap")
-     +MapsToCook=(FilePath="/Game/Carla/Maps/TestMaps/EmptyMap")
-     +MapsToCook=(FilePath="/Carla/PostProcessingMaterials/AnnotationColorLandscape")
-   Die `DirectoriesToAlwaysCook`/`DirectoriesToAlwaysStageAsUFS`-Einträge
-   unverändert lassen.
+HEBEL nach Wirkung (verifiziert):
 
-2. In Unreal/CarlaUE4/Config/DefaultEngine.ini im Block
-   [/Script/EngineSettings.GameMapsSettings] ALLE vier Map-Einträge
-   (EditorStartupMap, GameDefaultMap, ServerDefaultMap, TransitionMap) auf die
-   kleinste behaltene Map setzen (z. B. Town01):
-     .../Maps/Town01.Town01
-   GlobalDefaultGameMode, GameInstanceClass, GlobalDefaultServerGameMode NICHT
-   ändern.
+[A] Debug-Symbole abschalten  (~1,68 GB)  -- GRÖSSTER Config-Hebel
+    DefaultGame.ini: IncludeDebugFiles=False
+    Entfernt CarlaUE4-Linux-Shipping.debug (1,6 GB) + .sym (77 MB). Kein Funktionsverlust.
 
-KEINE Code-Änderungen, keine Änderung an Package.sh oder *.Package.json nötig.
+[B] Alle Gebäude aus den Keep-Maps entfernen  (~1,8 GB, falls gewünscht)
+    Gebäude sind ein GETEILTER modularer Bausatz (Materials/WindowModules/pieces),
+    keine großen Einzelmeshes -> nur das Entfernen ALLER Gebäude-Aktoren aus ALLEN
+    gecookten Maps senkt die Größe (Referenz-Closure: ~98 % von Static/Building fällt
+    weg). Ergebnis: gebäudelose Maps (Straßen/Vegetation/Props bleiben). Headless per
+    UE4-Python: pro Map laden, alle Aktoren mit StaticMesh-Komponente unter
+    /Static/Building/ via destroy_actor löschen, save_current_level. NUR machen, wenn
+    gebäudelose Maps ok sind.
 
-VERIFIKATION (nach `make package`):
-- Paketgröße mit `du -sh` gegen vorher vergleichen.
-- Gepacktes CarlaUE4.sh starten -> Server kommt hoch und lädt die Default-Map.
-- Python API: client.get_available_maps() zeigt NUR die behaltenen Maps
-  (+ _Opt); load_world('Town04') lädt; load_world('Town03') schlägt fehl.
-- Im gepackten Inhalt nach entfernten Town-.umap/Pak-Einträgen suchen ->
-  dürfen nicht mehr vorhanden sein.
+[C] Fußgänger-Bibliothek trimmen  (~2 GB: Pedestrian+Hair)
+    WalkerFactory: Fußgänger stehen im Default-Wert der LOKALEN Variable `Walkers`
+    der Funktion GenerateDefinitions -> nur im UE4-Editor-GUI editierbar (kein CDO-
+    Member, NICHT headless). Im Details-Panel der Variable `Walkers` alle Array-
+    Einträge bis auf die Keep-Modelle löschen. Einfache Female1/Male1-Modelle behalten
+    -> die großen Hair-Grooms (AfroGirl 268 MB, kid 199 MB) entfallen.
 
-OPTIONAL (kleiner Zusatzgewinn): in Carla/Maps/OpenDrive, Nav, TM und in
-HDMaps/*.pcd die Dateien nicht benötigter Towns entfernen.
+[D] HDMaps .pcd selektiv  (~1,08 GB)
+    Package.sh (~Z.327): statt aller *.pcd nur die der Keep-Maps kopieren:
+      for HDMAP_TOWN in Town01 Town04 ; do
+        copy_if_changed "./Unreal/CarlaUE4/Content/Carla/HDMaps/${HDMAP_TOWN}.pcd" "${DESTINATION}/HDMaps/"
+      done
+
+[E] Fahrzeug-Bibliothek trimmen  (~1 GB)
+    VehicleFactory: editierbares Member-Array `Vehicles` -> HEADLESS skriptbar (UE4-
+    Python: cdo.set_editor_property("Vehicles", [v for v in ... if vid(v) in KEEP])
+    + EditorAssetLibrary.save_asset). Details siehe reduce-actor-library.prompt.md.
+
+[F] Maps-Cook-Liste kürzen + Support behalten  (~100 MB + _Opt-Varianten)
+    DefaultGame.ini MapsToCook: nur Keep-Maps (Standard, OHNE _Opt). Diese 3 Support-
+    Einträge MÜSSEN bleiben:
+      +MapsToCook=(FilePath="/Game/Carla/Maps/OpenDriveMap")
+      +MapsToCook=(FilePath="/Game/Carla/Maps/TestMaps/EmptyMap")
+      +MapsToCook=(FilePath="/Carla/PostProcessingMaterials/AnnotationColorLandscape")
+    _Opt-Maps (layered) weglassen, wenn kein Runtime-Layer-Umschalten gebraucht wird.
+
+[G] Pflicht-Begleitänderung: Default-Startmap
+    DefaultEngine.ini [GameMapsSettings]: EditorStartupMap/GameDefaultMap/
+    ServerDefaultMap/TransitionMap auf eine Keep-Map setzen (z. B. Town01.Town01),
+    sonst startet der Server nicht.
+
+[H] Kleinkram: bCompressed=True (kleineres .pak), ParkedVehicles aus
+    DirectoriesToAlwaysCook entfernen.
+
+REVERSIBILITÄT - WICHTIG:
+- Configs (A,D,F,G,H) sind git-getrackt -> Restore via git.
+- Asset-Änderungen (B,C,E: .uasset/.umap) sind NICHT git-getrackt (CARLA-Content separat,
+  kein LFS). VOR jeder Änderung manuell sichern (cp); Restore nur über Backup oder
+  erneutes Content-Beziehen.
+
+HEADLESS UE4-PYTHON AUFRUF (für B und E):
+  UE4Editor CarlaUE4.uproject -run=pythonscript -script="skript.py" \
+    -unattended -nosplash -nullrhi -NoShaderCompile
+  (UE4.26: EditorLevelLibrary statt UE5-EditorActorSubsystem.)
+
+VERIFIKATION (nach make package):
+- du -sh auf Tarball + extrahiertes LinuxNoEditor; gegen vorher vergleichen.
+- find LinuxNoEditor -type f -size +50M  -> grosse Brocken prüfen (keine .debug, nur
+  Keep-Town .pcd).
+- Server starten (CarlaUE4.sh) -> kommt mit Keep-Default-Map hoch.
+- Python: get_available_maps() = nur Keep-Maps; get_blueprint_library().filter('vehicle.*')
+  und '...walker.pedestrian.*' = nur Keep-Set; load_world('<entfernte Town>') schlaegt fehl.
 ```
 
 ---
 
-## Beispiel: aktuell angewandte Konfiguration (Town01 + Town04)
+## Reihenfolge-Empfehlung
+Config-Hebel zuerst (A, D, F, G, H — schnell, reversibel via git), dann Asset-Hebel
+(E headless, C im GUI, B headless mit Backup), **dann genau EIN** `make package`
+(Cooking dauert lange — alles in einem Rutsch erfassen).
 
-`Unreal/CarlaUE4/Config/DefaultGame.ini` — `MapsToCook`:
+## Methodik-Hinweis (am Repo bewährt)
+- Vor dem Bauen **am bereits gebauten Paket messen**, wo die Größe sitzt
+  (`du -sh */`, `find -size +50M`), statt an Quell-Assets.
+- Erwartete Ersparnis ohne Build abschätzbar via **Referenz-Closure** (AssetRegistry
+  `get_dependencies` über die gecookten Roots): Assets, die nicht in der Closure liegen,
+  fallen weg. So wurde z. B. der ~98-%-Building-Drop vor dem Build bestätigt.
 
+## Aktuell angewandter Stand (Beispiel)
+`DefaultGame.ini` — `MapsToCook` (nur Town01/Town04, ohne `_Opt`):
 ```
 +MapsToCook=(FilePath="/Game/Carla/Maps/Town01")
-+MapsToCook=(FilePath="/Game/Carla/Maps/Town01_Opt")
 +MapsToCook=(FilePath="/Game/Carla/Maps/Town04")
-+MapsToCook=(FilePath="/Game/Carla/Maps/Town04_Opt")
 +MapsToCook=(FilePath="/Game/Carla/Maps/OpenDriveMap")
 +MapsToCook=(FilePath="/Game/Carla/Maps/TestMaps/EmptyMap")
 +MapsToCook=(FilePath="/Carla/PostProcessingMaterials/AnnotationColorLandscape")
 ```
+weiter: `bCompressed=True`, `IncludeDebugFiles=False`, `ParkedVehicles`-Zeile entfernt.
 
-`Unreal/CarlaUE4/Config/DefaultEngine.ini` — `[/Script/EngineSettings.GameMapsSettings]`:
-
+`DefaultEngine.ini` — `[/Script/EngineSettings.GameMapsSettings]`:
 ```
 EditorStartupMap=/Game/Carla/Maps/Town01.Town01
 GameDefaultMap=/Game/Carla/Maps/Town01.Town01
 ServerDefaultMap=/Game/Carla/Maps/Town01.Town01
 TransitionMap=/Game/Carla/Maps/Town01.Town01
 ```
+
+Siehe auch [reduce-package-size.report.md](reduce-package-size.report.md) (was genau
+geändert wurde + Restore) und [reduce-actor-library.prompt.md](reduce-actor-library.prompt.md)
+(Fahrzeug-/Fußgänger-Bibliothek im Detail).
