@@ -71,7 +71,7 @@ if not "%1"=="" (
 )
 
 rem If not defined, use Visual Studio 2022 as tool set
-if "%TOOLSET%" == "" set TOOLSET=msvc-14.3
+if "%TOOLSET%" == "" set TOOLSET=msvc-14.4
 if %GENERATOR% == "" set GENERATOR="Visual Studio 17 2022"
 
 rem If is not set, set the number of parallel jobs to the number of CPU threads
@@ -413,6 +413,7 @@ set CMAKE_CONFIG_FILE=%INSTALLATION_DIR%CMakeLists.txt.in
 >>"%CMAKE_CONFIG_FILE%" echo add_definitions(-DHAVE_SNPRINTF)
 >>"%CMAKE_CONFIG_FILE%" echo STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 >>"%CMAKE_CONFIG_FILE%" echo.
+>>"%CMAKE_CONFIG_FILE%" echo add_definitions(-DBOOST_ALL_NO_LIB)
 >>"%CMAKE_CONFIG_FILE%" echo add_definitions(-DBOOST_ERROR_CODE_HEADER_ONLY)
 >>"%CMAKE_CONFIG_FILE%" echo add_definitions(-DLIBCARLA_IMAGE_WITH_PNG_SUPPORT)
 >>"%CMAKE_CONFIG_FILE%" echo.

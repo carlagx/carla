@@ -147,7 +147,7 @@ if %USE_SIMREADY% == true (
     set SIMREADY_PLUGINS_INSTALLED="SimReady ON"
     rem fetch SimReady plugin dependencies
     pushd "%UE4_PROJECT_FOLDER%Plugins\Converters"
-    call get_dependencies.bat
+    call .\get_dependencies.bat
     popd
 ) else (
     python %ROOT_PATH%Util/BuildTools/enable_simready_to_uproject.py -f="%ROOT_PATH%Unreal/CarlaUE4/CarlaUE4.uproject" -p="MDL"

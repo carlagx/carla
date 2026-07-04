@@ -100,9 +100,10 @@ cd "%ZLIB_SRC_DIR%build"
 rem -DCMAKE_BUILD_TYPE=Release^
 rem -DCMAKE_CONFIGURATION_TYPES=Release^
 cmake -G "NMake Makefiles"^
+ -DCMAKE_POLICY_VERSION_MINIMUM=3.5^
  -DCMAKE_INSTALL_PREFIX="%ZLIB_INSTALL_DIR:\=/%"^
  -DCMAKE_BUILD_TYPE=Release^
- "%ZLIB_SRC_DIR%"
+ "%ZLIB_SRC_DIR:~0,-1%"
 if %errorlevel% neq 0 goto error_cmake
 
 rem https://stackoverflow.com/questions/601970/how-do-i-utilise-all-the-cores-for-nmake

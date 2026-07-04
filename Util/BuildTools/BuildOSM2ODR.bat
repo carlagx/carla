@@ -106,17 +106,18 @@ if %BUILD_OSM2ODR% == true (
     cd "%OSM2ODR_VSPROJECT_PATH%"
 
     cmake -G %GENERATOR% -A x64^
+        -DCMAKE_POLICY_VERSION_MINIMUM=3.5^
         -DCMAKE_CXX_FLAGS_RELEASE="/MD /MP"^
         -DCMAKE_INSTALL_PREFIX="%OSM2ODR_INSTALL_PATH:\=/%"^
         -DPROJ_INCLUDE_DIR=%INSTALLATION_DIR:/=\%\proj-install\include^
         -DPROJ_LIBRARY=%INSTALLATION_DIR:/=\%\proj-install\lib\proj.lib^
         -DXercesC_INCLUDE_DIR=%INSTALLATION_DIR:/=\%\xerces-c-3.2.3-install\include^
         -DXercesC_LIBRARY=%INSTALLATION_DIR:/=\%\xerces-c-3.2.3-install\lib\xerces-c.lib^
-        "%OSM2ODR_SOURCE_PATH%"
-    if %errorlevel% neq 0 goto error_cmake
+        "%OSM2ODR_SOURCE_PATH:~0,-1%"
+    if !errorlevel! neq 0 goto error_cmake
 
     cmake --build . --config Release --target install | findstr /V "Up-to-date:"
-    if %errorlevel% neq 0 goto error_install
+    if !errorlevel! neq 0 goto error_install
     copy %OSM2ODR_INSTALL_PATH%\lib\osm2odr.lib %CARLA_DEPENDENCIES_FOLDER%\lib
     copy %OSM2ODR_INSTALL_PATH%\include\OSM2ODR.h %CARLA_DEPENDENCIES_FOLDER%\include
 )
