@@ -49,8 +49,12 @@ Two UE5-vs-UE4 traps found along the way (documented, no repo change needed):
   derived data (textures/shaders), which is expected and cached.
 - `make package` — started 2026-07-04; **see the line below, updated when finished.**
 
-**make package status:** _in progress at the time of writing — the result will be
-confirmed in the session summary / this line updated._
+**make package status:** ✅ **SUCCESS** (2026-07-05). Overall packaging took ~10 h
+(first-time cook of 7,376 packages). Output:
+- `Build\UE4Carla\771ad8c92\WindowsNoEditor\` — standalone server
+  (`CarlaUE4.exe`, plus `PythonAPI`, `Co-Simulation`, `HDMaps`)
+- `Build\UE4Carla\CARLA_771ad8c92.zip` — distributable archive, **5.19 GB**
+  (the "min" reduction target; stock CARLA 0.9.16 packages are 3–4× larger)
 
 ## Housekeeping
 
