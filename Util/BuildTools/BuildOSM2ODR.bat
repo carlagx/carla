@@ -91,6 +91,14 @@ if %REMOVE_INTERMEDIATE% == true (
     )
 )
 
+rem Skip the whole build when osm2odr is already installed (e.g. in the
+rem portable kit, where the source tree is not shipped). FORCE_OSM2ODR=true
+rem forces a rebuild.
+if exist "%OSM2ODR_INSTALL_PATH%lib\osm2odr.lib" if not "%FORCE_OSM2ODR%"=="true" (
+    echo %FILE_N% osm2odr already installed, skipping build ^(set FORCE_OSM2ODR=true to rebuild^).
+    goto success
+)
+
 rem Build OSM2ODR
 if %BUILD_OSM2ODR% == true (
     cd "%INSTALLATION_DIR%"
