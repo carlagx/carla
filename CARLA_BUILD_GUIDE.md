@@ -3,6 +3,10 @@
 > Verified working on 2026-07-02 on this machine.
 > Fork: https://github.com/carlagx/carla.git — branch **`ue4-min`**
 > Reference: [Official CARLA Windows build docs](https://carla.readthedocs.io/en/latest/build_windows/)
+>
+> **Just want to run the simulator?** You don't need any of this — see
+> [INSTALL_WINDOWS.md](INSTALL_WINDOWS.md) (extract the package, install the
+> wheel, start `CarlaUE4.exe`).
 
 ---
 

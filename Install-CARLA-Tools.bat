@@ -135,6 +135,27 @@ if %errorlevel% equ 0 (
 )
 echo.
 
+REM Check .NET Framework SDK (NetFxSDK) - required by UnrealBuildTool (root cause #9)
+echo [CHECK] .NET Framework Developer Pack ^(NetFxSDK^)...
+if exist "%ProgramFiles(x86)%\Windows Kits\NETFXSDK" (
+    echo [OK] NetFxSDK is installed
+) else (
+    echo [INSTALL] Installing .NET Framework 4.8.1 Developer Pack...
+    call :InstallNetFxSDK
+)
+echo.
+
+REM Check .NET 4.6.2 reference assemblies - required to compile the engine's
+REM UnrealBuildTool/AutomationTool (root cause #12), no admin required
+echo [CHECK] .NET 4.6.2 reference assemblies ^(C:\tools\netfx462^)...
+if exist "C:\tools\netfx462\build\.NETFramework\v4.6.2\mscorlib.dll" (
+    echo [OK] Reference assemblies present
+) else (
+    echo [INSTALL] Downloading .NET 4.6.2 reference assemblies ^(NuGet^)...
+    call :InstallNetFx462RefAssemblies
+)
+echo.
+
 echo ============================================================================
 echo Phase 1b: Create Python Virtual Environment (venv)
 echo ============================================================================
@@ -176,24 +197,19 @@ echo [IMPORTANT] Next steps:
 echo.
 echo 1. RESTART COMPUTER (required for PATH and environment variables!)
 echo.
-echo 2. After restart:
-echo    - Install Epic Games Launcher
-echo    - Install Unreal Engine 4.26.2
-echo    - See CARLA_BUILD_GUIDE.md for details
+echo 2. After restart: clone and build the CARLA engine fork
+echo    (NOT the Epic Launcher engine - see CARLA_BUILD_GUIDE.md section 1):
+echo    git clone --depth 1 -b carla https://github.com/CarlaUnreal/UnrealEngine.git C:\UE4carla
 echo.
-echo 3. Prepare CARLA Repository:
-echo    cd C:\Users\wkuzn\carla
-echo    git checkout 0.9.16
-echo    .\Update.bat
+echo 3. Download the content assets (CARLA_BUILD_GUIDE.md section 2, step 4)
 echo.
-echo 4. Activate Python Virtual Environment:
-echo    cd C:\Users\wkuzn\carla
-echo    .\carla_venv\Scripts\activate.bat
+echo 4. Verify everything: Verify-Setup.bat
 echo.
-echo 5. Compile CARLA:
-echo    make launch
+echo 5. Build CARLA: Build-CARLA.bat
+echo    (Option 1 = Python API, 2 = editor, 3 = server package)
 echo.
-echo Detailed instructions: CARLA_BUILD_GUIDE.md
+echo Detailed build instructions: CARLA_BUILD_GUIDE.md
+echo Install/run the packaged simulator only: INSTALL_WINDOWS.md
 echo.
 pause
 exit /b 0
@@ -221,7 +237,7 @@ goto :eof
 
 :InstallPython
 if !WINGET_AVAILABLE! equ 1 (
-    winget install -e --id Python.Python.3.11 --silent --accept-source-agreements
+    winget install -e --id Python.Python.3.14 --silent --accept-source-agreements
 ) else if !CHOCO_AVAILABLE! equ 1 (
     choco install python -y
 ) else (
@@ -320,6 +336,33 @@ if !WINGET_AVAILABLE! equ 1 (
 )
 goto :eof
 
+:InstallNetFxSDK
+if !WINGET_AVAILABLE! equ 1 (
+    winget install -e --id Microsoft.DotNet.Framework.DeveloperPack_4 --accept-source-agreements --accept-package-agreements
+) else (
+    echo [ERROR] winget not available - please install manually:
+    echo https://dotnet.microsoft.com/download/dotnet-framework/net481
+)
+goto :eof
+
+:InstallNetFx462RefAssemblies
+mkdir "C:\tools\netfx462" 2>nul
+curl -L --retry 5 -o "%TEMP%\netfx462.nupkg" "https://www.nuget.org/api/v2/package/Microsoft.NETFramework.ReferenceAssemblies.net462"
+if errorlevel 1 (
+    echo [ERROR] Download failed - install manually, see CARLA_BUILD_GUIDE.md section 1
+    goto :eof
+)
+pushd "C:\tools\netfx462"
+C:\Windows\System32\tar.exe -xf "%TEMP%\netfx462.nupkg"
+popd
+del "%TEMP%\netfx462.nupkg"
+if exist "C:\tools\netfx462\build\.NETFramework\v4.6.2\mscorlib.dll" (
+    echo [OK] Reference assemblies installed to C:\tools\netfx462
+) else (
+    echo [ERROR] Extraction failed - see CARLA_BUILD_GUIDE.md section 1
+)
+goto :eof
+
 :CreateVirtualEnvironment
 echo [INFO] Creating Python Virtual Environment...
 echo.
@@ -345,16 +388,21 @@ if exist "carla_venv" (
         echo [INFO] Activation: %cd%\carla_venv\Scripts\activate.bat
         echo.
 
-        REM Upgrade pip
-        echo [INFO] Updating pip...
+        REM Upgrade pip and install wheel build tooling (root cause #8)
+        echo [INFO] Updating pip and installing build tooling...
         call carla_venv\Scripts\activate.bat
-        python -m pip install --upgrade pip setuptools wheel
+        python -m pip install --upgrade pip setuptools wheel build
         call carla_venv\Scripts\deactivate.bat
 
         echo [OK] pip updated
     ) else (
         echo [ERROR] Virtual Environment could not be created
     )
+)
+
+REM Ensure 'build' is present even in a pre-existing venv (root cause #8)
+if exist "carla_venv\Scripts\python.exe" (
+    carla_venv\Scripts\python.exe -m pip install --quiet build wheel
 )
 
 cd /d "%~dp0"
@@ -379,14 +427,15 @@ goto :eof
 :SetEnvironmentVariables
 echo [INFO] Setting environment variables...
 
-REM Check if UE4 is installed
-if exist "C:\Program Files\Epic Games\UE_4.26" (
-    setx UE4_ROOT "C:\Program Files\Epic Games\UE_4.26"
-    echo [OK] UE4_ROOT = C:\Program Files\Epic Games\UE_4.26
+REM The CARLA engine fork is required (NOT the Epic Launcher build) -
+REM see CARLA_BUILD_GUIDE.md section 1 / BUILD_REPORT.md root cause #11
+if exist "C:\UE4carla\Engine" (
+    setx UE4_ROOT "C:\UE4carla"
+    echo [OK] UE4_ROOT = C:\UE4carla ^(CARLA engine fork^)
 ) else (
-    echo [WARNING] UE4 not yet installed
-    echo [INFO] UE4_ROOT will be set after UE4 installation
-    echo [INFO] See CARLA_BUILD_GUIDE.md Phase 3
+    echo [WARNING] CARLA engine fork not found at C:\UE4carla
+    echo [INFO] Clone and build it first ^(CARLA_BUILD_GUIDE.md section 1^),
+    echo [INFO] then run Set-UE4-Environment.bat as Administrator.
 )
 
 goto :eof
