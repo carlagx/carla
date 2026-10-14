@@ -149,6 +149,10 @@ private:
 
   void OnEpisodeSettingsChanged(const FEpisodeSettings &Settings);
 
+  // Lädt zur Laufzeit eine glTF/GLB (via -gltf= bzw. CARLA_RUNTIME_GLTF) über das
+  // glTFRuntime-Plugin und spawnt sie als sichtbare Umgebung.
+  void SpawnRuntimeGltfEnvironment();
+
   UPROPERTY()
   UCarlaGameInstance *GameInstance = nullptr;
 
