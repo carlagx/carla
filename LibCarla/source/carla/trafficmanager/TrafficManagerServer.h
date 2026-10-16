@@ -51,7 +51,7 @@ public:
         /// address, so it must not listen on all interfaces.
         server = new ::rpc::server("127.0.0.1", RPCPort);
 
-      } catch(std::exception) {
+      } catch(const std::exception&) {
         using namespace std::chrono_literals;
         /// Update port number and try again.
         std::this_thread::sleep_for(500ms);

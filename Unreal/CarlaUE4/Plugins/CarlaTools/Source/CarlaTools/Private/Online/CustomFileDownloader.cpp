@@ -8,7 +8,8 @@
 #include "Http.h"
 #include "Misc/FileHelper.h"
 
-#include <OSM2ODR.h>
+// DISABLED: osm2odr linkage issue (xerces-c C++ stdlib mismatch)
+// #include <OSM2ODR.h>
 
 void UCustomFileDownloader::ConvertOSMInOpenDrive(FString FilePath, float Lat_0, float Lon_0)
 {
@@ -33,25 +34,18 @@ void UCustomFileDownloader::ConvertOSMInOpenDrive(FString FilePath, float Lat_0,
     UE_LOG(LogCarlaToolsMapGenerator, Warning, TEXT("File: %s does not exist"), *FilePath);
     return;
   }
-  std::string OsmFile = std::string(TCHAR_TO_UTF8(*FileContent));
 
-  osm2odr::OSM2ODRSettings Settings;
-  Settings.proj_string += " +lat_0=" + std::to_string(Lat_0) + " +lon_0=" + std::to_string(Lon_0);
-  Settings.center_map = false;
-  std::string OpenDriveFile = osm2odr::ConvertOSMToOpenDRIVE(OsmFile, Settings);
-
-  FilePath.RemoveFromEnd(".osm", ESearchCase::Type::IgnoreCase);
-  FilePath += ".xodr";
-
-  // We use the LoadFileToString to load the file into
-  if (FFileHelper::SaveStringToFile(FString(OpenDriveFile.c_str()), *FilePath))
-  {
-    UE_LOG(LogCarlaToolsMapGenerator, Warning, TEXT("FileManipulation: Sucsesfuly Written: \"%s\" to the text file"), *FilePath);
-  }
-  else
-  {
-    UE_LOG(LogCarlaToolsMapGenerator, Warning, TEXT("FileManipulation: Failed to write FString to file."));
-  }
+  // DISABLED: osm2odr linkage issue (xerces-c C++ stdlib mismatch). Bail out
+  // instead of writing an empty .xodr that later steps would treat as valid.
+  // Re-enable together with the osm2odr libraries in Carla.Build.cs:
+  //   std::string OsmFile = std::string(TCHAR_TO_UTF8(*FileContent));
+  //   osm2odr::OSM2ODRSettings Settings;
+  //   Settings.proj_string += " +lat_0=" + std::to_string(Lat_0) + " +lon_0=" + std::to_string(Lon_0);
+  //   Settings.center_map = false;
+  //   std::string OpenDriveFile = osm2odr::ConvertOSMToOpenDRIVE(OsmFile, Settings);
+  (void) Lat_0;
+  (void) Lon_0;
+  UE_LOG(LogCarlaToolsMapGenerator, Error, TEXT("FileManipulation: OSM to OpenDRIVE conversion is disabled in this build (osm2odr not linked); \"%s\" was not converted."), *FilePath);
 }
 
 void UCustomFileDownloader::StartDownload()
