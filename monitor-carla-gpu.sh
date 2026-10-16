@@ -37,7 +37,14 @@ echo
 trap 'echo; echo "Beendet."; exit 0' INT TERM
 
 while true; do
-  PID=$(pgrep -f "$PATTERN" | head -1)
+  # Bevorzugt der Prozess, den nvidia-smi auf der GPU sieht (auch bei Docker, wo
+  # `docker run ... CarlaUE4.sh` und bash-Wrapper sonst zuerst von pgrep -f gefunden werden).
+  PID=$(nvidia-smi --query-compute-apps=pid,process_name --format=csv,noheader 2>/dev/null \
+        | awk -F', *' -v pat="$PATTERN" '$2 ~ pat {print $1; exit}')
+  # Fallback: Prozessname (nicht Kommandozeile), Wrapper wie docker/bash ausschließen
+  [ -z "$PID" ] && PID=$(pgrep -f "$PATTERN" | while read -r p; do
+      case "$(ps -p "$p" -o comm= 2>/dev/null)" in docker|bash|sh|docker-proxy) ;; *) echo "$p"; break ;; esac
+    done)
   TS=$(date +%H:%M:%S)
 
   read -r GUTIL MUTIL VUSED VTOTAL TEMP PWR CLK < <(
