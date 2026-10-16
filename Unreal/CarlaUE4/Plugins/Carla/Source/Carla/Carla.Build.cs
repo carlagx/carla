@@ -217,11 +217,11 @@ public class Carla : ModuleRules
         bUseRTTI = true;
       }
 
-      //OsmToODR
+      //OsmToODR - DISABLED (xerces-c C++ stdlib mismatch)
       PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", "sqlite3.lib"));
-      PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", "xerces-c_3.lib"));
-      PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", "proj.lib"));
-      PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", "osm2odr.lib"));
+      // COMMENTED OUT DUE TO C++ STDLIB MISMATCH: PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", "xerces-c_3.lib"));
+      // COMMENTED OUT (depends on xerces-c): PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", "proj.lib"));
+      // COMMENTED OUT (depends on xerces-c): PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", "osm2odr.lib"));
       PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", "zlibstatic.lib"));
     }
     else
@@ -334,12 +334,12 @@ public class Carla : ModuleRules
       }
 
 
-      //OsmToODR
+      //OsmToODR - DISABLED (xerces-c C++ stdlib mismatch)
       PublicAdditionalLibraries.Add("/usr/lib/x86_64-linux-gnu/libc.so");
       PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", "libsqlite3.so"));
-      PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", "libxerces-c.a"));
-      PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", "libproj.a"));
-      PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", "libosm2odr.a"));
+      // COMMENTED OUT DUE TO C++ STDLIB MISMATCH: PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", "libxerces-c.a"));
+      // COMMENTED OUT (depends on xerces-c): PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", "libproj.a"));
+      // COMMENTED OUT (depends on xerces-c): PublicAdditionalLibraries.Add(Path.Combine(LibCarlaInstallPath, "lib", "libosm2odr.a"));
 
     }
     bEnableExceptions = true;

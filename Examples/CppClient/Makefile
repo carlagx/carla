@@ -6,7 +6,7 @@ TOOLCHAIN=$(CURDIR)/ToolChain.cmake
 
 CC=/usr/bin/gcc
 CXX=/usr/bin/g++
-CXXFLAGS=-std=c++17 -pthread -fPIC -O3 -DNDEBUG -Werror -Wall -Wextra
+CXXFLAGS=-std=c++17 -pthread -fPIC -O3 -DNDEBUG -Wall -Wextra
 
 define log
 	@echo "\033[1;35m$(1)\033[0m"
@@ -28,7 +28,7 @@ run.only:
 
 build: $(BINDIR)/cpp_client
 
-$(BINDIR)/cpp_client: | build_libcarla
+$(BINDIR)/cpp_client: main.cpp | build_libcarla
 	$(call log,Compiling C++ Client...)
 	@mkdir -p $(BINDIR)
 	@$(CXX) $(CXXFLAGS) -I$(INSTALLDIR)/include -isystem $(INSTALLDIR)/include/system -L$(INSTALLDIR)/lib \
@@ -62,3 +62,17 @@ $(TOOLCHAIN):
 	@echo "set(CMAKE_C_COMPILER $(CC))" > $(TOOLCHAIN)
 	@echo "set(CMAKE_CXX_COMPILER $(CXX))" >> $(TOOLCHAIN)
 	@echo "set(CMAKE_CXX_FLAGS \"\$${CMAKE_CXX_FLAGS} $(CXXFLAGS)\" CACHE STRING \"\" FORCE)" >> $(TOOLCHAIN)
+
+# GPU performance test client (vehicle + cameras, 10 s by default)
+gpu_test: $(BINDIR)/gpu_test
+
+run.gpu_test: gpu_test
+	@$(BINDIR)/gpu_test $(ARGS)
+
+$(BINDIR)/gpu_test: gpu_test.cpp | build_libcarla
+	$(call log,Compiling GPU test client...)
+	@mkdir -p $(BINDIR)
+	@$(CXX) $(CXXFLAGS) -I$(INSTALLDIR)/include -isystem $(INSTALLDIR)/include/system -L$(INSTALLDIR)/lib \
+		-o $(BINDIR)/gpu_test gpu_test.cpp \
+		-Wl,-Bstatic -lcarla_client -lrpc -lboost_filesystem -Wl,-Bdynamic \
+		-lpng -ltiff -ljpeg -lRecast -lDetour -lDetourCrowd

@@ -1,31 +1,49 @@
+#include <algorithm>
+#include <chrono>
+#include <iomanip>
 #include <iostream>
 #include <random>
-#include <sstream>
 #include <stdexcept>
 #include <string>
 #include <thread>
 #include <tuple>
+#include <utility>
 
 #include <carla/actors/ActorBlueprint.h>
 #include <carla/actors/BlueprintLibrary.h>
 #include <carla/client/Client.h>
 #include <carla/client/Map.h>
-#include <carla/client/Sensor.h>
 #include <carla/client/TimeoutException.h>
+#include <carla/client/Vehicle.h>
 #include <carla/client/World.h>
 #include <carla/geom/Transform.h>
-#include <carla/image/ImageIO.h>
-#include <carla/image/ImageView.h>
-#include <carla/sensor/data/Image.h>
+#include <carla/trafficmanager/TrafficManager.h>
 
+namespace ca = carla::actors;
 namespace cc = carla::client;
-namespace cg = carla::geom;
-namespace csd = carla::sensor::data;
+namespace ctm = carla::traffic_manager;
 
 using namespace std::chrono_literals;
 using namespace std::string_literals;
 
 #define EXPECT_TRUE(pred) if (!(pred)) { throw std::runtime_error(#pred); }
+
+/// Map the vehicle is supposed to drive in.
+static const std::string MAP_NAME = "Town06";
+
+/// A cold map load also triggers shader builds, which block the simulator for
+/// far longer than the usual handful of seconds.
+static const auto TIMEOUT = 600s;
+
+/// Distance the vehicle covers on autopilot before it is braked to a halt.
+static const float DEFAULT_DRIVE_DISTANCE = 20.0f;
+
+/// The autopilot obeys traffic lights and other cars, so the vehicle can
+/// legitimately stand still for a while. Give up rather than hang forever.
+static const auto DRIVE_TIMEOUT = 120s;
+
+/// Below this speed the vehicle counts as standing still.
+static const float STANDSTILL_SPEED = 0.1f;
 
 /// Pick a random element from @a range.
 template <typename RangeT, typename RNG>
@@ -35,114 +53,184 @@ static auto &RandomChoice(const RangeT &range, RNG &&generator) {
   return range[dist(std::forward<RNG>(generator))];
 }
 
-/// Save a semantic segmentation image to disk converting to CityScapes palette.
-/*
-static void SaveSemSegImageToDisk(const csd::Image &image) {
-  using namespace carla::image;
-
-  char buffer[9u];
-  std::snprintf(buffer, sizeof(buffer), "%08zu", image.GetFrame());
-  auto filename = "_images/"s + buffer + ".png";
-
-  auto view = ImageView::MakeColorConvertedView(
-      ImageView::MakeView(image),
-      ColorConverter::CityScapesPalette());
-  ImageIO::WriteView(filename, view);
-}
-*/
-
 static auto ParseArguments(int argc, const char *argv[]) {
-  EXPECT_TRUE((argc == 1u) || (argc == 3u));
-  using ResultType = std::tuple<std::string, uint16_t>;
-  return argc == 3u ?
-      ResultType{argv[1u], std::stoi(argv[2u])} :
-      ResultType{"localhost", 2000u};
+  EXPECT_TRUE((argc == 1) || (argc == 3) || (argc == 4));
+  using ResultType = std::tuple<std::string, uint16_t, float>;
+  if (argc == 1) {
+    return ResultType{"localhost", 2000u, DEFAULT_DRIVE_DISTANCE};
+  }
+  return ResultType{
+      argv[1u],
+      static_cast<uint16_t>(std::stoi(argv[2u])),
+      argc == 4 ? std::stof(argv[3u]) : DEFAULT_DRIVE_DISTANCE};
+}
+
+/// Pick a random four-wheeled vehicle, so the autopilot behaves predictably,
+/// and randomize its color when it has one.
+static ca::ActorBlueprint PickVehicle(const cc::World &world, std::mt19937_64 &rng) {
+  auto library = world.GetBlueprintLibrary();
+  auto vehicles = library->Filter("vehicle.*");
+  EXPECT_TRUE(vehicles->size() > 0u);
+  auto cars = vehicles->FilterByAttribute("number_of_wheels", "4");
+
+  auto blueprint = RandomChoice((cars->size() > 0u) ? *cars : *vehicles, rng);
+
+  if (blueprint.ContainsAttribute("color")) {
+    const auto &attribute = blueprint.GetAttribute("color");
+    blueprint.SetAttribute(
+        "color",
+        RandomChoice(attribute.GetRecommendedValues(), rng));
+  }
+  return blueprint;
+}
+
+/// Try the recommended spawn points in random order until one is free. Points
+/// can be occupied by traffic already present in the episode, so spawning at a
+/// single fixed point is unreliable.
+static carla::SharedPtr<cc::Actor> SpawnVehicle(
+    cc::World &world,
+    const ca::ActorBlueprint &blueprint,
+    std::mt19937_64 &rng) {
+  auto map = world.GetMap();
+  auto spawn_points = map->GetRecommendedSpawnPoints();
+  EXPECT_TRUE(spawn_points.size() > 0u);
+  std::shuffle(spawn_points.begin(), spawn_points.end(), rng);
+
+  for (const auto &transform : spawn_points) {
+    auto actor = world.TrySpawnActor(blueprint, transform);
+    if (actor != nullptr) {
+      return actor;
+    }
+  }
+  throw std::runtime_error("no free spawn point left in "s + map->GetName());
+}
+
+/// Place the spectator behind and above the vehicle, looking its way.
+static void ChaseWithSpectator(
+    const carla::SharedPtr<cc::Actor> &spectator,
+    const carla::geom::Transform &vehicle_transform) {
+  auto camera = vehicle_transform;
+  camera.location -= 8.0f * vehicle_transform.GetForwardVector();
+  camera.location.z += 3.5f;
+  camera.rotation.pitch = -12.0f;
+  spectator->SetTransform(camera);
 }
 
 int main(int argc, const char *argv[]) {
+  carla::SharedPtr<cc::Vehicle> vehicle;
   try {
 
     std::string host;
     uint16_t port;
-    std::tie(host, port) = ParseArguments(argc, argv);
+    float drive_distance;
+    std::tie(host, port, drive_distance) = ParseArguments(argc, argv);
 
     std::mt19937_64 rng((std::random_device())());
 
     auto client = cc::Client(host, port);
-    client.SetTimeout(40s);
+    client.SetTimeout(TIMEOUT);
 
     std::cout << "Client API version : " << client.GetClientVersion() << '\n';
     std::cout << "Server API version : " << client.GetServerVersion() << '\n';
 
-    // Load town
-    auto world = client.LoadWorld("Town05_Opt");
+    // Loading a map is expensive, so only switch when a different one is
+    // active. Repeated runs against an already loaded Town06 start instantly.
+    std::cout << "Current map        : "
+              << client.GetWorld().GetMap()->GetName() << '\n';
+    client.LoadWorldIfDifferent(MAP_NAME);
 
-    // Get a random vehicle blueprint.
-    auto blueprint_library = world.GetBlueprintLibrary();
-    auto vehicles = blueprint_library->Filter("vehicle");
-    auto blueprint = RandomChoice(*vehicles, rng);
+    auto world = client.GetWorld();
+    std::cout << "Active map         : " << world.GetMap()->GetName() << '\n';
 
-    // Randomize the blueprint.
-    if (blueprint.ContainsAttribute("color")) {
-      auto &attribute = blueprint.GetAttribute("color");
-      blueprint.SetAttribute(
-          "color",
-          RandomChoice(attribute.GetRecommendedValues(), rng));
+    auto blueprint = PickVehicle(world, rng);
+    auto actor = SpawnVehicle(world, blueprint, rng);
+    vehicle = boost::static_pointer_cast<cc::Vehicle>(actor);
+    std::cout << "Spawned            : " << actor->GetDisplayId() << '\n';
+
+    auto spectator = world.GetSpectator();
+    ChaseWithSpectator(spectator, vehicle->GetTransform());
+
+    // Hand the vehicle over to the Traffic Manager. This also starts a local
+    // TM instance on TM_DEFAULT_PORT (8000) if none is running yet, which then
+    // steers, brakes and obeys traffic lights on its own.
+    vehicle->SetAutopilot(true);
+
+    auto traffic_manager = client.GetInstanceTM();
+    traffic_manager.SetAutoLaneChange(actor, false);  // keep it on its lane
+
+    std::cout << std::fixed << std::setprecision(1)
+              << "Driving " << drive_distance << " m on autopilot...\n";
+
+    // Sum up the path actually covered, rather than the straight-line offset
+    // from the spawn point, so a curve still counts its real length.
+    auto last_location = vehicle->GetLocation();
+    float covered = 0.0f;
+    const auto started = std::chrono::steady_clock::now();
+    auto next_report = started;
+
+    while (covered < drive_distance) {
+      if (std::chrono::steady_clock::now() - started > DRIVE_TIMEOUT) {
+        std::cout << "Autopilot covered only " << covered
+                  << " m before timing out.\n";
+        break;
+      }
+
+      world.WaitForTick(TIMEOUT);
+
+      const auto transform = vehicle->GetTransform();
+      covered += transform.location.Distance(last_location);
+      last_location = transform.location;
+
+      ChaseWithSpectator(spectator, transform);
+
+      const auto now = std::chrono::steady_clock::now();
+      if (now >= next_report) {
+        next_report = now + 1s;
+        std::cout << "  " << covered << " m"
+                  << "  speed=" << 3.6f * vehicle->GetVelocity().Length()
+                  << " km/h\n";
+      }
     }
 
-    // Find a valid spawn point.
-    auto map = world.GetMap();
-    auto transform = RandomChoice(map->GetRecommendedSpawnPoints(), rng);
+    // Take control back from the Traffic Manager and brake to a standstill.
+    vehicle->SetAutopilot(false);
 
-    // Spawn the vehicle.
-    auto actor = world.SpawnActor(blueprint, transform);
-    std::cout << "Spawned " << actor->GetDisplayId() << '\n';
-    auto vehicle = boost::static_pointer_cast<cc::Vehicle>(actor);
+    cc::Vehicle::Control stop;
+    stop.throttle = 0.0f;
+    stop.steer = 0.0f;
+    stop.brake = 1.0f;
+    stop.hand_brake = true;
+    vehicle->ApplyControl(stop);
 
-    // Apply control to vehicle.
-    cc::Vehicle::Control control;
-    control.throttle = 1.0f;
-    vehicle->ApplyControl(control);
+    const auto braking_started = std::chrono::steady_clock::now();
+    while (vehicle->GetVelocity().Length() > STANDSTILL_SPEED) {
+      if (std::chrono::steady_clock::now() - braking_started > DRIVE_TIMEOUT) {
+        std::cout << "Vehicle did not come to a full stop.\n";
+        break;
+      }
+      world.WaitForTick(TIMEOUT);
+      covered += vehicle->GetLocation().Distance(last_location);
+      last_location = vehicle->GetLocation();
+      ChaseWithSpectator(spectator, vehicle->GetTransform());
+    }
 
-    // Move spectator so we can see the vehicle from the simulator window.
-    auto spectator = world.GetSpectator();
-    transform.location += 32.0f * transform.GetForwardVector();
-    transform.location.z += 2.0f;
-    transform.rotation.yaw += 180.0f;
-    transform.rotation.pitch = -15.0f;
-    spectator->SetTransform(transform);
+    ctm::TrafficManager::Release();
 
-/*
-    // Find a camera blueprint.
-    auto camera_bp = blueprint_library->Find("sensor.camera.semantic_segmentation");
-    EXPECT_TRUE(camera_bp != nullptr);
-
-    // Spawn a camera attached to the vehicle.
-    auto camera_transform = cg::Transform{
-        cg::Location{-5.5f, 0.0f, 2.8f},   // x, y, z.
-        cg::Rotation{-15.0f, 0.0f, 0.0f}}; // pitch, yaw, roll.
-    auto cam_actor = world.SpawnActor(*camera_bp, camera_transform, actor.get());
-    auto camera = boost::static_pointer_cast<cc::Sensor>(cam_actor);
-
-    // Register a callback to save images to disk.
-    camera->Listen([](auto data) {
-        auto image = boost::static_pointer_cast<csd::Image>(data);
-        EXPECT_TRUE(image != nullptr);
-        SaveSemSegImageToDisk(*image);
-    });
-
-    std::this_thread::sleep_for(10s);
-
-    // Remove actors from the simulation.
-    camera->Destroy();
-*/
-    vehicle->Destroy();
-    std::cout << "Actors destroyed." << std::endl;
+    const auto location = vehicle->GetLocation();
+    std::cout << "Stopped after " << covered << " m at ("
+              << location.x << ", " << location.y << ", " << location.z << ").\n"
+              << "Vehicle " << actor->GetDisplayId()
+              << " is left standing in the episode." << std::endl;
 
   } catch (const cc::TimeoutException &e) {
     std::cout << '\n' << e.what() << std::endl;
     return 1;
   } catch (const std::exception &e) {
+    // A vehicle left behind mid-drive would keep driving on autopilot.
+    if (vehicle != nullptr) {
+      try { vehicle->Destroy(); } catch (...) {}
+    }
+    try { ctm::TrafficManager::Release(); } catch (...) {}
     std::cout << "\nException: " << e.what() << std::endl;
     return 2;
   }

@@ -1,0 +1,8 @@
+#!/bin/bash
+# Online only: clone CARLA's Unreal Engine 4.26 fork into $UE4_ROOT and run its
+# Setup/GenerateProjectFiles. Needs GITHUB_TOKEN of an account linked to Epic Games.
+set -eo pipefail
+if [ -x "$UE4_ROOT/Engine/Build/BatchFiles/RunUAT.sh" ]; then echo "Engine already in $UE4_ROOT"; exit 0; fi
+[ -n "$GITHUB_TOKEN" ] || { echo "GITHUB_TOKEN missing (credentials file)" >&2; exit 2; }
+git clone --depth 1 -b carla https://github.com/CarlaUnreal/UnrealEngine.git "$UE4_ROOT"
+cd "$UE4_ROOT" && ./Setup.sh && ./GenerateProjectFiles.sh && make -j"$(nproc)"
