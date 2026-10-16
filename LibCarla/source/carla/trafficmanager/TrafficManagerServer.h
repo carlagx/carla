@@ -48,7 +48,7 @@ public:
         /// Create server instance.
         server = new ::rpc::server(RPCPort);
 
-      } catch(std::exception) {
+      } catch(const std::exception&) {
         using namespace std::chrono_literals;
         /// Update port number and try again.
         std::this_thread::sleep_for(500ms);
