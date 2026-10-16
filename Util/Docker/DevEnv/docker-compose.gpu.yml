@@ -1,0 +1,6 @@
+# Adds the NVIDIA GPU (running the editor or server inside): -f docker-compose.yml -f docker-compose.gpu.yml
+services:
+  carla-dev:
+    gpus: all
+    environment:
+      NVIDIA_DRIVER_CAPABILITIES: all

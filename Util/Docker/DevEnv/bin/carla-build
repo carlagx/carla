@@ -1,0 +1,50 @@
+#!/bin/bash
+# Build CARLA inside the dev container and collect everything for download.
+#
+#   carla-build [stage...] [-- extra args for build-carla-server.sh]
+#   carla-build maps Town01,Town02      server with the default maps PLUS the given ones
+#
+# Stages: setup pythonapi client server editor all (= setup pythonapi client server)
+# Default maps in the server package: $CARLA_DEFAULT_MAPS (Town06 = default map, Town04).
+# More maps are added later with "carla-build maps ..." (a new full server package).
+# Result: /artifacts/<time>-<version>/ (served on :8081), logs in /artifacts/logs.
+set -eo pipefail
+
+CARLA_ROOT="${CARLA_ROOT:-/workspace/carla}"
+DEFAULT_MAPS="${CARLA_DEFAULT_MAPS:-Town06,Town04}"
+JOBS="${JOBS:-$(nproc)}"
+cd "$CARLA_ROOT"
+[ -f Makefile ] || { echo "no CARLA sources in $CARLA_ROOT" >&2; exit 2; }
+
+STAGES=(); EXTRA=(); MAPS="$DEFAULT_MAPS"
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --) shift; EXTRA=("$@"); break ;;
+    -h|--help) sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    maps) STAGES+=(server); MAPS="$DEFAULT_MAPS,$2"; shift ;;
+    *) STAGES+=("$1") ;;
+  esac
+  shift
+done
+[ ${#STAGES[@]} -eq 0 ] && STAGES=(all)
+[ "${STAGES[0]}" = all ] && STAGES=(setup pythonapi client server)
+
+# De-duplicate map list, keep order
+MAPS="$(echo "$MAPS" | tr ',' '\n' | awk 'NF && !seen[$0]++' | paste -sd,)"
+
+LOGDIR=/artifacts/logs; mkdir -p "$LOGDIR"
+run() { local name="$1"; shift; echo "== $name: $*"; "$@" 2>&1 | tee "$LOGDIR/$(date +%Y%m%d-%H%M%S)-$name.log"; }
+
+for stage in "${STAGES[@]}"; do
+  case "$stage" in
+    setup)     run setup make setup ;;
+    pythonapi) run pythonapi make PythonAPI.wheel ;;
+    client)    run client make LibCarla.client.release
+               run cppclient make -C Examples/CppClient build gpu_test ;;
+    server)    run server ./build-carla-server.sh --maps="$MAPS" --jobs="$JOBS" "${EXTRA[@]}" ;;
+    editor)    run editor make CarlaUE4Editor ;;
+    *) echo "unknown stage: $stage" >&2; exit 2 ;;
+  esac
+done
+
+CARLA_BUILT_MAPS="$MAPS" exec carla-collect
