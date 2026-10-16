@@ -1,0 +1,39 @@
+#!/bin/bash
+# Gather build results into /artifacts/<time>-<version>/ with SHA256SUMS and
+# manifest.json; /artifacts/latest points to the newest. Missing parts are skipped.
+set -eo pipefail
+CARLA_ROOT="${CARLA_ROOT:-/workspace/carla}"
+cd "$CARLA_ROOT"
+VERSION="$(git describe --always --dirty 2>/dev/null || echo unknown)"
+OUT="/artifacts/$(date +%Y%m%d-%H%M%S)-${VERSION}"
+mkdir -p "$OUT"
+
+pack() { # pack <name> <dir> : tar.zst of a directory
+  tar -C "$(dirname "$2")" -cf - "$(basename "$2")" | zstd -T0 -3 -q -o "$OUT/$1.tar.zst"
+}
+
+# Python wheel(s)
+ls PythonAPI/carla/dist/*.whl >/dev/null 2>&1 && cp PythonAPI/carla/dist/*.whl "$OUT/"
+# C++ client binaries and install tree (headers + libs)
+if ls Examples/CppClient/bin/* >/dev/null 2>&1; then
+  mkdir -p "$OUT/cpp-client" && cp -a Examples/CppClient/bin/. "$OUT/cpp-client/"
+  [ -d Examples/CppClient/libcarla-install ] && pack libcarla-client-install Examples/CppClient/libcarla-install
+fi
+# Packaged server (newest Dist/CARLA_*)
+SERVER_DIR="$(ls -dt Dist/CARLA_*/ 2>/dev/null | head -1 | sed 's:/$::' || true)"
+if [ -n "$SERVER_DIR" ]; then
+  if ls "$SERVER_DIR"/../*.tar.gz >/dev/null 2>&1; then cp "$(ls -t "$SERVER_DIR"/../*.tar.gz | head -1)" "$OUT/"; else pack "$(basename "$SERVER_DIR")-server" "$SERVER_DIR"; fi
+fi
+# Editor binaries (only if built)
+if [ -d Unreal/CarlaUE4/Binaries/Linux ]; then
+  tar -cf - Unreal/CarlaUE4/Binaries/Linux Unreal/CarlaUE4/Plugins/*/Binaries 2>/dev/null | zstd -T0 -3 -q -o "$OUT/carlaue4-editor-binaries.tar.zst" || true
+fi
+
+( cd "$OUT" && find . -type f ! -name SHA256SUMS ! -name manifest.json -printf '%P\n' | sort | xargs -r sha256sum > SHA256SUMS )
+jq -n --arg v "$VERSION" --arg d "$(date -Is)" --arg m "${CARLA_BUILT_MAPS:-}" --rawfile s "$OUT/SHA256SUMS" \
+  '{version:$v, date:$d, maps:($m|split(",")), files:($s|split("\n")|map(select(length>0)|{sha256:.[0:64], name:.[66:]}))}' > "$OUT/manifest.json"
+ln -sfn "$(basename "$OUT")" /artifacts/latest
+
+echo "Artifacts: $OUT"
+cat "$OUT/SHA256SUMS"
+echo "Download: http://<host>:8081/latest/   (zip: http://<host>:8081/latest/?zip=1)"
