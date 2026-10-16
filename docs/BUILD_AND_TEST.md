@@ -98,3 +98,19 @@ python3 PythonAPI/examples/manual_control.py
 - **Engine-Zuordnung:** `CarlaUE4.uproject` steht auf `"EngineAssociation": "4.26"`. Ist die Engine nur unter einer GUID registiert (`~/.config/Epic/UnrealEngine/Install.ini`), schreibt der Editor die GUID beim Öffnen ins Projekt. Diese lokale Änderung nicht committen (`git restore -p` oder per Hand zurücksetzen).
 - **Schnelleres Laden im Editor (lokal, nicht committen):** `r.GenerateMeshDistanceFields=False` und eine kleinere `EditorStartupMap` beschleunigen das Öffnen von Karten, ändern aber Rendering/Sensordaten. Siehe [MAP_LOADING_TIPS.md](MAP_LOADING_TIPS.md). Beim Packen setzt `build-carla-server.sh` Standardkarte und Kartenliste selbst.
 - Das Paket heißt `…-dirty`, solange der Git-Stand nicht committet ist.
+
+## 8. Offline bauen (ohne Internet)
+
+`Util/BuildTools/OfflineCache.sh` (von `Environment.sh` und `Plugins.sh` geladen) fängt `wget`, `curl` und `git clone` der Build-Skripte ab.
+
+```bash
+# Einmal mit Internet: Downloads aufzeichnen
+export CARLA_OFFLINE_CACHE=$HOME/carla-offline-cache CARLA_OFFLINE_RECORD=1
+make setup && make plugins        # ggf. mit --chrono/--ros2/--pytorch, wie später benötigt
+
+# Cache (Ordner) aufs Zielsystem kopieren, dort ohne Netz:
+export CARLA_OFFLINE_CACHE=$HOME/carla-offline-cache
+make setup && make plugins        # liest nur noch aus dem Cache, Treffer-Fehler melden "offline cache: miss"
+```
+
+Nicht abgedeckt: Unreal Engine (`Setup.sh` der Engine vorab online ausführen und den ganzen Baum mitnehmen), apt-Pakete, pip-Wheels, Content (`Update.sh`).
