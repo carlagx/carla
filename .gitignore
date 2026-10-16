@@ -58,3 +58,8 @@ profiler.csv
 Unreal/CarlaUE4/.ignore
 devcontainer.json
 compile_commands.json
+
+# Local build/test artifacts
+/test-logs/
+/client-build-*/
+/report.txt
