@@ -6,6 +6,7 @@
 # Usage:
 #   ./carla-start.sh                        # use API from carla.conf
 #   ./carla-start.sh --api cpp              # C++ client instead
+#   ./carla-start.sh --api cpp-manual       # C++ manual_control (keyboard driving)
 #   ./carla-start.sh --map Town03           # override map
 #   ./carla-start.sh --config other.conf    # use another config file
 #   ./carla-start.sh --report               # only print the report, start nothing
@@ -27,7 +28,7 @@ while [ $# -gt 0 ]; do
         --map)    OVERRIDE_MAP="$2"; shift 2 ;;
         --report) REPORT_ONLY=1; shift ;;
         --)       shift; CLIENT_ARGS=("$@"); break ;;
-        -h|--help) sed -n '2,11p' "$0"; exit 0 ;;
+        -h|--help) sed -n '2,13p' "$0"; exit 0 ;;
         *) echo "Unknown option: $1" >&2; exit 1 ;;
     esac
 done
@@ -104,6 +105,9 @@ report_static() {
     echo "  interpreter: $(command -v "$PY_INTERPRETER" || echo MISSING) ($("$PY_INTERPRETER" --version 2>&1))"
     echo "C++ client"
     echo "  binary:      $CPP_CLIENT_BIN [$(yes_no "$CPP_CLIENT_BIN")]"
+    echo "C++ manual control"
+    echo "  binary:      $CPP_MANUAL_BIN [$(yes_no "$CPP_MANUAL_BIN")]"
+    echo "  vehicle:     ${VEHICLE:-random}"
     echo "Rendering"
     render_mode
     echo "GPU"
@@ -236,8 +240,19 @@ case "$API" in
         # shellcheck disable=SC2086
         "$CPP_CLIENT_BIN" ${CPP_ARGS:-$CARLA_HOST $CARLA_PORT} "${CLIENT_ARGS[@]}"
         ;;
+    cpp-manual)
+        if [ ! -x "$CPP_MANUAL_BIN" ]; then
+            echo "C++ manual control not found or not executable: $CPP_MANUAL_BIN" >&2
+            echo "Build it with: make -C $(dirname "$(dirname "$CPP_MANUAL_BIN")") manual_control" >&2
+            echo "(needs SDL2: sudo apt install libsdl2-dev libsdl2-ttf-dev)" >&2
+            exit 1
+        fi
+        echo "Starting C++ manual control: $CPP_MANUAL_BIN"
+        # The binary reads CARLA_HOST, CARLA_PORT, VEHICLE and CPP_MANUAL_ARGS from the config itself.
+        "$CPP_MANUAL_BIN" --config "$CONFIG" "${CLIENT_ARGS[@]}"
+        ;;
     *)
-        echo "Unknown API '$API' in $CONFIG (use python or cpp)" >&2
+        echo "Unknown API '$API' in $CONFIG (use python, cpp or cpp-manual)" >&2
         exit 1
         ;;
 esac

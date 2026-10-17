@@ -4,6 +4,20 @@ BINDIR=$(CURDIR)/bin
 INSTALLDIR=$(CURDIR)/libcarla-install
 TOOLCHAIN=$(CURDIR)/ToolChain.cmake
 
+# The client must use the LibCarla of the server's CARLA version, otherwise
+# sensor data and controls are misread. To build against another checkout,
+# e.g. for a 0.9.16 server:
+#   git worktree add --detach ../carla-0.9.16 0.9.16
+#   make manual_control CARLA_SRC=/path/to/carla-0.9.16
+# Build, install and binaries then go to *-<checkout name>, e.g. bin-carla-0.9.16.
+ifdef CARLA_SRC
+CARLADIR=$(abspath $(CARLA_SRC))
+CHECKOUT=-$(notdir $(CARLADIR))
+BUILDDIR=$(CURDIR)/build$(CHECKOUT)
+BINDIR=$(CURDIR)/bin$(CHECKOUT)
+INSTALLDIR=$(CURDIR)/libcarla-install$(CHECKOUT)
+endif
+
 CC=/usr/bin/gcc
 CXX=/usr/bin/g++
 CXXFLAGS=-std=c++17 -pthread -fPIC -O3 -DNDEBUG -Wall -Wextra
@@ -64,6 +78,7 @@ $(TOOLCHAIN):
 	@echo "set(CMAKE_CXX_FLAGS \"\$${CMAKE_CXX_FLAGS} $(CXXFLAGS)\" CACHE STRING \"\" FORCE)" >> $(TOOLCHAIN)
 
 # GPU performance test client (vehicle + cameras, 10 s by default)
+.PHONY: gpu_test run.gpu_test
 gpu_test: $(BINDIR)/gpu_test
 
 run.gpu_test: gpu_test
@@ -76,3 +91,22 @@ $(BINDIR)/gpu_test: gpu_test.cpp | build_libcarla
 		-o $(BINDIR)/gpu_test gpu_test.cpp \
 		-Wl,-Bstatic -lcarla_client -lrpc -lboost_filesystem -Wl,-Bdynamic \
 		-lpng -ltiff -ljpeg -lRecast -lDetour -lDetourCrowd
+
+# Keyboard-controlled vehicle (C++ port of PythonAPI/examples/manual_control.py).
+# Needs SDL2 and SDL2_ttf: sudo apt install libsdl2-dev libsdl2-ttf-dev
+SDL_CFLAGS ?= $(shell pkg-config --cflags sdl2 SDL2_ttf)
+SDL_LIBS ?= $(shell pkg-config --libs sdl2 SDL2_ttf)
+
+.PHONY: manual_control run.manual_control
+manual_control: $(BINDIR)/manual_control
+
+run.manual_control: manual_control
+	@$(BINDIR)/manual_control $(ARGS)
+
+$(BINDIR)/manual_control: manual_control.cpp | build_libcarla
+	$(call log,Compiling manual control client...)
+	@mkdir -p $(BINDIR)
+	@$(CXX) $(CXXFLAGS) -I$(INSTALLDIR)/include -isystem $(INSTALLDIR)/include/system -L$(INSTALLDIR)/lib \
+		$(SDL_CFLAGS) -o $(BINDIR)/manual_control manual_control.cpp \
+		-Wl,-Bstatic -lcarla_client -lrpc -lboost_filesystem -Wl,-Bdynamic \
+		-lpng -ltiff -ljpeg -lRecast -lDetour -lDetourCrowd $(SDL_LIBS)
