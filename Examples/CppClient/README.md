@@ -48,6 +48,30 @@ It accepts the same options as the Python script (`--host`, `--port`,
 `--sync`). Press `H` in the window for the key bindings. Images recorded with
 `R` are written to `_out/` as BMP files.
 
+### GTK variant
+
+`manual_control_gtk.cpp` is the same client with GTK3 + Cairo + Pango instead
+of SDL2: same features, key bindings, options and `carla.conf` handling, but
+it needs no SDL2 or SDL2_ttf, only GTK3 (`libgtk-3-dev` to build; the runtime
+libraries come with Ubuntu desktops) and it takes its fonts from fontconfig.
+Build and run it like the SDL version:
+
+```
+make run.manual_control_gtk CARLA_SRC=../../../carla-0.9.16
+```
+
+Differences to the SDL version:
+
+- Images recorded with `R` are written to `_out/` as PNG files.
+- It reads `CPP_GTK_ARGS` (not `CPP_MANUAL_ARGS`) from `carla.conf`, so extra
+  options for one variant do not break the other.
+- `--screenshot FILE.png [--screenshot-delay SECONDS]` saves the first complete
+  frame (camera picture and HUD) as a PNG and keeps running.
+- GTK would switch the program to the user's locale, and a German `LC_NUMERIC`
+  makes LibCarla misread the OpenDRIVE map and crash. The program therefore
+  stays in the `C` locale, and it drops `GTK_PATH` and similar variables that a
+  terminal started from the VS Code snap points into `/snap/code`.
+
 How it works
 ------------
 

@@ -110,3 +110,23 @@ $(BINDIR)/manual_control: manual_control.cpp | build_libcarla
 		$(SDL_CFLAGS) -o $(BINDIR)/manual_control manual_control.cpp \
 		-Wl,-Bstatic -lcarla_client -lrpc -lboost_filesystem -Wl,-Bdynamic \
 		-lpng -ltiff -ljpeg -lRecast -lDetour -lDetourCrowd $(SDL_LIBS)
+
+# Same keyboard-controlled vehicle with GTK3 + Cairo instead of SDL2. Needs no extra
+# packages on Ubuntu desktops that can build against GTK (libgtk-3-dev), and uses
+# the system fonts through fontconfig.
+GTK_CFLAGS ?= $(shell pkg-config --cflags gtk+-3.0)
+GTK_LIBS ?= $(shell pkg-config --libs gtk+-3.0)
+
+.PHONY: manual_control_gtk run.manual_control_gtk
+manual_control_gtk: $(BINDIR)/manual_control_gtk
+
+run.manual_control_gtk: manual_control_gtk
+	@$(BINDIR)/manual_control_gtk $(ARGS)
+
+$(BINDIR)/manual_control_gtk: manual_control_gtk.cpp | build_libcarla
+	$(call log,Compiling GTK manual control client...)
+	@mkdir -p $(BINDIR)
+	@$(CXX) $(CXXFLAGS) -I$(INSTALLDIR)/include -isystem $(INSTALLDIR)/include/system -L$(INSTALLDIR)/lib \
+		$(GTK_CFLAGS) -o $(BINDIR)/manual_control_gtk manual_control_gtk.cpp \
+		-Wl,-Bstatic -lcarla_client -lrpc -lboost_filesystem -Wl,-Bdynamic \
+		-lpng -ltiff -ljpeg -lRecast -lDetour -lDetourCrowd $(GTK_LIBS)
