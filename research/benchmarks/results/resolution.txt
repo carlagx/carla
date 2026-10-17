@@ -1,0 +1,19 @@
+# Resolution scaling on the real display (X11, NVIDIA RTX 2080 Ti, 3072x1920 screen), 60 fps target, text cached.
+# CLIENT process CPU only (X server and compositor are NOT included: see system_cpu.txt for those).
+# The 3840x2160 window is larger than the screen; the window manager clips it, rendering is unchanged.
+# Commands: bench_sdl/bench_gtk built with -DBENCH_W=<w> -DBENCH_H=<h>; offscreen 4 s, windows 5 s, all with --cache.
+## 1280x720
+sdl_offscreen+cache[software/dummy] frames=240 fps=60.0 cpu=28.4% (user 28.3% sys 0.1%) draw_ms mean=4.71 p50=4.65 p99=5.70 max=6.24 maxrss=48MB
+gtk_offscreen+cache[cairo]  frames=240 fps=60.0 cpu=20.7% (user 20.7% sys 0.0%) draw_ms mean=3.43 p50=3.37 p99=4.84 max=5.02 maxrss=48MB
+sdl_accel+cache[opengl/x11] frames=300 fps=60.0 cpu=36.2% (user 35.7% sys 0.5%) draw_ms mean=5.99 p50=5.88 p99=9.82 max=12.36 maxrss=117MB
+gtk_window+cache[cairo]     frames=299 fps=59.8 cpu=18.5% (user 17.8% sys 0.7%) draw_ms mean=2.75 p50=2.72 p99=4.15 max=4.28 maxrss=63MB
+## 1920x1080
+sdl_offscreen+cache[software/dummy] frames=239 fps=60.0 cpu=49.6% (user 49.5% sys 0.1%) draw_ms mean=8.25 p50=8.35 p99=10.07 max=12.34 maxrss=92MB
+gtk_offscreen+cache[cairo]  frames=240 fps=60.0 cpu=33.9% (user 33.8% sys 0.0%) draw_ms mean=5.63 p50=5.51 p99=7.52 max=8.14 maxrss=88MB
+sdl_accel+cache[opengl/x11] frames=300 fps=60.0 cpu=63.6% (user 63.3% sys 0.3%) draw_ms mean=10.54 p50=10.60 p99=14.58 max=21.15 maxrss=217MB
+gtk_window+cache[cairo]     frames=299 fps=59.8 cpu=26.8% (user 26.3% sys 0.5%) draw_ms mean=4.09 p50=4.09 p99=5.63 max=5.75 maxrss=102MB
+## 3840x2160
+sdl_offscreen+cache[software/dummy] frames=240 fps=60.0 cpu=76.8% (user 76.6% sys 0.1%) draw_ms mean=12.77 p50=12.72 p99=13.55 max=13.77 maxrss=329MB
+gtk_offscreen+cache[cairo]  frames=240 fps=60.0 cpu=72.2% (user 72.2% sys 0.0%) draw_ms mean=12.01 p50=11.92 p99=13.30 max=13.84 maxrss=302MB
+sdl_accel+cache[opengl/x11] frames=208 fps=41.5 cpu=86.0% (user 85.2% sys 0.8%) draw_ms mean=24.09 p50=23.79 p99=26.00 max=48.62 maxrss=462MB
+gtk_window+cache[cairo]     frames=116 fps=23.2 cpu=26.5% (user 26.3% sys 0.2%) draw_ms mean=10.95 p50=11.41 p99=13.47 max=16.03 maxrss=316MB

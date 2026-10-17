@@ -1,0 +1,13 @@
+# CLIENT process CPU only (X server and compositor are NOT included: see system_cpu.txt and apps.txt).
+# 2026-10-17T03:59:51+02:00  host: cgx, Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz, 12 threads
+# gpu: NVIDIA GeForce RTX 2080 Ti, 595.84; session x11 on :1
+# server: CARLA 0.9.16, offscreen; scenario: autopilot, vehicle vehicle.audi.a2, RGB camera 1280x720, async
+# 10 s warm-up, then 25 s measured; CPU is the sum over all threads of the client process
+## run 1
+python-pygame  cpu=135,7% of one core over 25 s   rss=277 MB   peak=277 MB
+cpp-sdl2       cpu= 78,9% of one core over 25 s   rss=214 MB   peak=214 MB
+cpp-gtk3       cpu= 87,3% of one core over 25 s   rss=172 MB   peak=175 MB
+## run 2
+python-pygame  cpu=146,6% of one core over 25 s   rss=270 MB   peak=270 MB
+cpp-sdl2       cpu= 72,8% of one core over 25 s   rss=210 MB   peak=210 MB
+cpp-gtk3       cpu= 90,2% of one core over 25 s   rss=166 MB   peak=166 MB

@@ -1,0 +1,18 @@
+# CLIENT process CPU only (X server and compositor are NOT included: see system_cpu.txt).
+# Ablation on the real display (X11, NVIDIA): what costs the CPU time? 5 s each, 60 fps, naive text
+sdl_accel[opengl]           frames=300 fps=60.0 cpu=42.9% (user 42.6% sys 0.2%) draw_ms mean=7.10 p50=7.27 p99=9.21 max=9.94 maxrss=113MB
+sdl_accel-picture[opengl]   frames=301 fps=60.0 cpu=13.8% (user 13.5% sys 0.3%) draw_ms mean=2.25 p50=2.24 p99=3.51 max=3.75 maxrss=104MB
+sdl_accel-text[opengl]      frames=300 fps=60.0 cpu=31.4% (user 30.9% sys 0.5%) draw_ms mean=5.19 p50=5.22 p99=7.28 max=12.07 maxrss=110MB
+sdl_accel-picture-text[opengl] frames=300 fps=60.0 cpu=1.8% (user 1.3% sys 0.5%) draw_ms mean=0.25 p50=0.19 p99=4.39 max=7.18 maxrss=102MB
+gtk_window[cairo]           frames=299 fps=59.8 cpu=19.3% (user 18.8% sys 0.5%) draw_ms mean=2.87 p50=2.88 p99=4.43 max=5.09 maxrss=63MB
+gtk_window-picture[cairo]   frames=300 fps=60.0 cpu=12.0% (user 11.5% sys 0.5%) draw_ms mean=1.70 p50=1.72 p99=3.20 max=3.27 maxrss=59MB
+gtk_window-text[cairo]      frames=299 fps=59.8 cpu=9.2% (user 8.3% sys 0.9%) draw_ms mean=1.19 p50=1.18 p99=1.45 max=1.59 maxrss=59MB
+gtk_window-picture-text[cairo] frames=300 fps=60.0 cpu=2.1% (user 1.6% sys 0.5%) draw_ms mean=0.08 p50=0.08 p99=0.15 max=0.16 maxrss=55MB
+# SDL picture upload variants, picture only (no text), accelerated renderer, 5 s, 60 fps
+sdl_accel-text[opengl]      frames=300 fps=60.0 cpu=31.2% (user 30.7% sys 0.5%) draw_ms mean=5.16 p50=5.21 p99=8.21 max=11.53 maxrss=111MB
+sdl_accel-text[opengl]+static frames=300 fps=60.0 cpu=32.0% (user 31.6% sys 0.4%) draw_ms mean=5.28 p50=5.22 p99=8.61 max=11.60 maxrss=111MB
+sdl_accel-text[opengl]+lock frames=300 fps=60.0 cpu=38.2% (user 37.7% sys 0.4%) draw_ms mean=6.30 p50=6.27 p99=7.88 max=12.73 maxrss=114MB
+# SDL: rotating through N picture textures (picture only, no text), accelerated, 5 s, 60 fps
+sdl_accel-text[opengl]      frames=300 fps=60.0 cpu=31.6% (user 31.1% sys 0.5%) draw_ms mean=5.20 p50=5.21 p99=6.84 max=11.78 maxrss=111MB
+sdl_accel-text[opengl]+ring2 frames=300 fps=60.0 cpu=31.8% (user 31.5% sys 0.3%) draw_ms mean=5.25 p50=5.25 p99=7.54 max=8.09 maxrss=110MB
+sdl_accel-text[opengl]+ring3 frames=300 fps=60.0 cpu=32.3% (user 32.0% sys 0.3%) draw_ms mean=5.33 p50=5.27 p99=7.08 max=19.03 maxrss=118MB
