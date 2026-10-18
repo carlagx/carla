@@ -1,0 +1,45 @@
+distro: Debian GNU/Linux 12 (bookworm)  (family debian)   glibc: 2.36   arch: x86_64
+
+== install packages
+install exit: 0   (log tail: Setting up libsdl2-ttf-dev:amd64 (2.20.1+dfsg-2) ...)
+
+== versions
+sdl2       2.26.5
+SDL2_ttf   2.20.1
+gtk+-3.0   3.24.38
+cairo      1.16.0
+pango      1.50.12
+gcc        g++ (Debian 12.2.0-14+deb12u1) 12.2.0
+SDL2 runtime library: /usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.2600.5, provided by: libsdl2-2.0-0; links SDL3: 0
+fontconfig monospace: /usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf
+
+== newer toolkits in the distribution (package query only)
+libsdl3-dev        
+libgtk-4-dev       4.8.3+ds-2+deb12u1
+libqt6widgets6     6.4.2+dfsg-10
+qt6-base-dev       6.4.2+dfsg-10
+
+== build
+bench_sdl build exit: 0   warnings: 0
+bench_gtk build exit: 0   warnings: 0
+
+== offscreen (no display)
+sdl_offscreen[software/dummy] frames=120 fps=60.0 cpu=29.2% (user 29.1% sys 0.1%) draw_ms mean=4.84 p50=4.88 p99=5.09 max=5.18 maxrss=46MB
+gtk_offscreen[cairo]        frames=120 fps=60.0 cpu=22.6% (user 22.6% sys 0.0%) draw_ms mean=3.75 p50=3.76 p99=4.26 max=4.27 maxrss=47MB
+
+== X11 (Xvfb)
+[exit 0] sdl_accel[opengl/x11]       frames=180 fps=60.0 cpu=218.6% (user 215.3% sys 3.4%) draw_ms mean=9.93 p50=10.08 p99=10.70 max=10.87 maxrss=143MB
+[exit 0] sdl_software[software/x11]  frames=180 fps=60.0 cpu=174.1% (user 170.7% sys 3.4%) draw_ms mean=11.54 p50=11.86 p99=12.42 max=12.54 maxrss=146MB
+[exit 0] gtk_window[cairo]           frames=180 fps=60.0 cpu=19.8% (user 19.1% sys 0.7%) draw_ms mean=2.93 p50=3.06 p99=3.34 max=3.62 maxrss=110MB
+
+== Wayland (weston headless)
+[exit 0] gtk wayland: gtk_window[cairo]           frames=95 fps=31.8 cpu=15.5% (user 15.3% sys 0.2%) draw_ms mean=3.64 p50=3.78 p99=4.32 max=4.32 maxrss=61MB
+[exit 0] sdl wayland software: timeout: the monitored command dumped core
+[exit 139] sdl wayland accel: timeout: the monitored command dumped core
+[exit 139] sdl auto (wayland only): timeout: the monitored command dumped core
+
+== prebuilt CARLA clients (built on Ubuntu 22.04, mounted at /apps): do they start here?
+manual_control       starts: usage: manual_control [--config FILE] [--host H] [-p P] [-a] [--res WIDTHxHEIGHT]
+manual_control_gtk   starts: usage: manual_control_gtk [--config FILE] [--host H] [-p P] [-a] [--res WIDTHxHEIGHT]
+
+done

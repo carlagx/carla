@@ -1,0 +1,45 @@
+distro: Ubuntu 22.04.5 LTS  (family debian)   glibc: 2.35   arch: x86_64
+
+== install packages
+install exit: 0   (log tail: Processing triggers for libc-bin (2.35-0ubuntu3.15) ...)
+
+== versions
+sdl2       2.0.20
+SDL2_ttf   2.0.18
+gtk+-3.0   3.24.33
+cairo      1.16.0
+pango      1.50.6
+gcc        g++ (Ubuntu 11.4.0-1ubuntu1~22.04.3) 11.4.0
+SDL2 runtime library: /usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.18.2, provided by: libsdl2-2.0-0; links SDL3: 0
+fontconfig monospace: /usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf
+
+== newer toolkits in the distribution (package query only)
+libsdl3-dev        
+libgtk-4-dev       4.6.9+ds-0ubuntu0.22.04.2
+libqt6widgets6     6.2.4+dfsg-2ubuntu1.1
+qt6-base-dev       6.2.4+dfsg-2ubuntu1.1
+
+== build
+bench_sdl build exit: 0   warnings: 0
+bench_gtk build exit: 0   warnings: 0
+
+== offscreen (no display)
+sdl_offscreen[software/dummy] frames=120 fps=60.0 cpu=28.7% (user 28.7% sys 0.0%) draw_ms mean=4.77 p50=4.80 p99=5.09 max=5.18 maxrss=46MB
+gtk_offscreen[cairo]        frames=120 fps=60.0 cpu=21.7% (user 21.6% sys 0.1%) draw_ms mean=3.59 p50=3.63 p99=4.02 max=5.99 maxrss=47MB
+
+== X11 (Xvfb)
+[exit 0] sdl_accel[opengl/x11]       frames=180 fps=60.0 cpu=221.8% (user 219.2% sys 2.7%) draw_ms mean=9.90 p50=9.96 p99=10.47 max=12.47 maxrss=143MB
+[exit 0] sdl_software[software/x11]  frames=180 fps=60.0 cpu=30.2% (user 29.9% sys 0.3%) draw_ms mean=5.80 p50=5.89 p99=6.39 max=7.50 maxrss=106MB
+[exit 0] gtk_window[cairo]           frames=181 fps=60.0 cpu=19.4% (user 18.7% sys 0.7%) draw_ms mean=2.89 p50=2.88 p99=3.26 max=3.46 maxrss=108MB
+
+== Wayland (weston headless)
+[exit 0] gtk wayland: gtk_window[cairo]           frames=89 fps=29.5 cpu=14.0% (user 13.9% sys 0.1%) draw_ms mean=3.62 p50=3.65 p99=4.16 max=4.16 maxrss=60MB
+[exit 0] sdl wayland software: timeout: the monitored command dumped core
+[exit 139] sdl wayland accel: timeout: the monitored command dumped core
+[exit 139] sdl auto (wayland only): timeout: the monitored command dumped core
+
+== prebuilt CARLA clients (built on Ubuntu 22.04, mounted at /apps): do they start here?
+manual_control       starts: usage: manual_control [--config FILE] [--host H] [-p P] [-a] [--res WIDTHxHEIGHT]
+manual_control_gtk   starts: usage: manual_control_gtk [--config FILE] [--host H] [-p P] [-a] [--res WIDTHxHEIGHT]
+
+done

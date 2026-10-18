@@ -1,0 +1,56 @@
+Unable to find image 'ubuntu:26.04' locally
+26.04: Pulling from library/ubuntu
+d9d511d19a19: Pulling fs layer
+435bf5c20694: Pulling fs layer
+d9d511d19a19: Download complete
+2e7e55092090: Download complete
+435bf5c20694: Download complete
+435bf5c20694: Pull complete
+d9d511d19a19: Pull complete
+Digest: sha256:c098726dd9b9733f3e885f8de0ef375206a311b0a317eadc40d347b1115fb944
+Status: Downloaded newer image for ubuntu:26.04
+distro: Ubuntu 26.04.1 LTS  (family debian)   glibc: 2.43   arch: x86_64
+
+== install packages
+install exit: 0   (log tail: Setting up libsdl2-ttf-dev:amd64 (2.24.0+dfsg-3) ...)
+
+== versions
+sdl2       2.32.10
+SDL2_ttf   2.24.0
+gtk+-3.0   3.24.52
+cairo      1.18.4
+pango      1.57.0
+gcc        g++ (Ubuntu 15.2.0-16ubuntu1) 15.2.0
+SDL2 runtime library: /usr/lib/x86_64-linux-gnu/sdl2-classic/libSDL2-2.0.so.0.3200.10, provided by: libsdl2-classic; links SDL3: 0
+fontconfig monospace: /usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf
+
+== newer toolkits in the distribution (package query only)
+libsdl3-dev        3.4.2+ds-1ubuntu1
+libgtk-4-dev       4.22.4+ds-0ubuntu0.1
+libqt6widgets6     6.10.2+dfsg-7
+qt6-base-dev       6.10.2+dfsg-7
+
+== build
+bench_sdl build exit: 0   warnings: 0
+bench_gtk build exit: 0   warnings: 0
+
+== offscreen (no display)
+sdl_offscreen[software/dummy] frames=120 fps=60.0 cpu=28.7% (user 28.6% sys 0.0%) draw_ms mean=4.76 p50=4.84 p99=4.96 max=5.44 maxrss=48MB
+gtk_offscreen[cairo]        frames=120 fps=60.0 cpu=22.4% (user 22.4% sys -0.0%) draw_ms mean=3.72 p50=3.71 p99=4.00 max=4.11 maxrss=50MB
+
+== X11 (Xvfb)
+[exit 0] sdl_accel[opengl/x11]       frames=181 fps=60.0 cpu=213.9% (user 211.0% sys 2.8%) draw_ms mean=8.25 p50=8.38 p99=9.14 max=9.48 maxrss=165MB
+[exit 0] sdl_software[software/x11]  frames=180 fps=60.0 cpu=167.7% (user 164.1% sys 3.6%) draw_ms mean=10.11 p50=10.22 p99=10.53 max=10.59 maxrss=162MB
+[exit 0] gtk_window[cairo]           frames=180 fps=60.0 cpu=18.9% (user 18.4% sys 0.6%) draw_ms mean=2.82 p50=2.85 p99=3.11 max=3.13 maxrss=114MB
+
+== Wayland (weston headless)
+[exit 0] gtk wayland: gtk_window[cairo]           frames=110 fps=36.7 cpu=41.6% (user 23.3% sys 18.3%) draw_ms mean=4.01 p50=4.08 p99=4.41 max=4.65 maxrss=68MB
+[exit 0] sdl wayland software: sdl_software[software/wayland] frames=180 fps=60.0 cpu=182.0% (user 178.8% sys 3.2%) draw_ms mean=10.96 p50=11.13 p99=11.84 max=13.11 maxrss=162MB
+[exit 0] sdl wayland accel: sdl_accel[opengl/wayland]   frames=181 fps=60.0 cpu=229.5% (user 227.4% sys 2.1%) draw_ms mean=9.14 p50=9.21 p99=10.15 max=11.59 maxrss=156MB
+[exit 0] sdl auto (wayland only): sdl_software[software/wayland] frames=180 fps=60.0 cpu=181.6% (user 179.1% sys 2.5%) draw_ms mean=10.76 p50=11.11 p99=11.82 max=11.83 maxrss=162MB
+
+== prebuilt CARLA clients (built on Ubuntu 22.04, mounted at /apps): do they start here?
+manual_control       starts: usage: manual_control [--config FILE] [--host H] [-p P] [-a] [--res WIDTHxHEIGHT]
+manual_control_gtk   starts: usage: manual_control_gtk [--config FILE] [--host H] [-p P] [-a] [--res WIDTHxHEIGHT]
+
+done

@@ -61,5 +61,7 @@ compile_commands.json
 
 # Local build/test artifacts
 /test-logs/
+/build-check-logs/
 /client-build-*/
 /report.txt
+/issues/reports/

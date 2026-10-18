@@ -1,0 +1,28 @@
+# CLIENT process CPU only (X server and compositor are NOT included: see system_cpu.txt and apps.txt).
+# 2026-10-17T03:53:14+02:00  host: cgx
+# cpu:     Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz
+# gpu:     NVIDIA GeForce RTX 2080 Ti, 595.84
+# os:      Ubuntu 22.04.5 LTS, kernel 6.8.0-138-generic, session x11, DISPLAY=:1
+# sdl2:    2.0.20, SDL2_ttf 2.0.18
+# gtk:     3.24.33, cairo 1.16.0, pango 1.50.6
+# scene:   1280x720 camera picture + HUD (28 text lines, 9 of them changing every frame, 3 bars, graph), 6 s per run at 60 fps, 2 runs
+## run 1
+sdl_offscreen[software] frames=360 fps=60.0 cpu=29.2% draw_ms mean=4.85 p50=4.86 p99=6.18 max=6.49 maxrss=45MB
+sdl_offscreen+cache[software] frames=360 fps=60.0 cpu=28.4% draw_ms mean=4.71 p50=4.66 p99=5.61 max=6.26 maxrss=48MB
+gtk_offscreen[cairo]   frames=360 fps=60.0 cpu=22.3% draw_ms mean=3.70 p50=3.72 p99=4.20 max=4.40 maxrss=48MB
+gtk_offscreen+cache[cairo] frames=360 fps=60.0 cpu=21.8% draw_ms mean=3.61 p50=3.54 p99=4.94 max=5.17 maxrss=48MB
+sdl_accel[opengl]      frames=360 fps=60.0 cpu=42.6% draw_ms mean=7.06 p50=7.21 p99=8.75 max=9.19 maxrss=113MB
+sdl_accel+cache[opengl] frames=360 fps=60.0 cpu=35.9% draw_ms mean=5.94 p50=5.82 p99=9.76 max=12.39 maxrss=117MB
+sdl_software[software] frames=360 fps=60.0 cpu=60.0% draw_ms mean=9.95 p50=10.14 p99=11.47 max=15.52 maxrss=113MB
+gtk_window[cairo]      frames=358 fps=59.6 cpu=19.7% draw_ms mean=2.95 p50=2.94 p99=3.97 max=4.28 maxrss=63MB
+gtk_window+cache[cairo] frames=359 fps=59.8 cpu=18.5% draw_ms mean=2.72 p50=2.68 p99=4.23 max=5.76 maxrss=63MB
+## run 2
+sdl_offscreen[software] frames=360 fps=60.0 cpu=29.5% draw_ms mean=4.91 p50=4.87 p99=5.67 max=6.12 maxrss=45MB
+sdl_offscreen+cache[software] frames=359 fps=60.0 cpu=28.3% draw_ms mean=4.70 p50=4.68 p99=5.55 max=6.78 maxrss=48MB
+gtk_offscreen[cairo]   frames=360 fps=60.0 cpu=22.3% draw_ms mean=3.71 p50=3.69 p99=4.12 max=4.27 maxrss=48MB
+gtk_offscreen+cache[cairo] frames=360 fps=60.0 cpu=21.2% draw_ms mean=3.52 p50=3.43 p99=5.12 max=5.96 maxrss=48MB
+sdl_accel[opengl]      frames=360 fps=60.0 cpu=42.5% draw_ms mean=7.05 p50=7.08 p99=9.21 max=10.72 maxrss=113MB
+sdl_accel+cache[opengl] frames=360 fps=60.0 cpu=35.2% draw_ms mean=5.83 p50=5.81 p99=9.16 max=12.76 maxrss=117MB
+sdl_software[software] frames=360 fps=60.0 cpu=59.6% draw_ms mean=9.88 p50=10.14 p99=11.15 max=11.67 maxrss=113MB
+gtk_window[cairo]      frames=359 fps=59.8 cpu=19.0% draw_ms mean=2.82 p50=2.80 p99=3.97 max=4.64 maxrss=62MB
+gtk_window+cache[cairo] frames=359 fps=59.8 cpu=18.7% draw_ms mean=2.77 p50=2.71 p99=4.29 max=4.69 maxrss=63MB

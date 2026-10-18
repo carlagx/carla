@@ -1,0 +1,55 @@
+distro: Ubuntu 20.04.6 LTS  (family debian)   glibc: 2.31   arch: x86_64
+
+== install packages
+install exit: 0   (log tail: Processing triggers for libgdk-pixbuf2.0-0:amd64 (2.40.0+dfsg-3ubuntu0.5) ...)
+
+== versions
+sdl2       2.0.10
+SDL2_ttf   2.0.15
+gtk+-3.0   3.24.20
+cairo      1.16.0
+pango      1.44.7
+gcc        g++ (Ubuntu 9.4.0-1ubuntu1~20.04.2) 9.4.0
+SDL2 runtime library: /usr/lib/x86_64-linux-gnu/libSDL2-2.0.so.0.10.0, provided by: libsdl2-2.0-0; links SDL3: 0
+fontconfig monospace: /usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf
+
+== newer toolkits in the distribution (package query only)
+libsdl3-dev        
+libgtk-4-dev       
+libqt6widgets6     
+qt6-base-dev       
+
+== build
+bench_sdl build exit: 0   warnings: 0
+bench_gtk build exit: 0   warnings: 0
+
+== offscreen (no display)
+sdl_offscreen[software/dummy] frames=120 fps=60.0 cpu=29.3% (user 29.1% sys 0.1%) draw_ms mean=4.86 p50=4.90 p99=5.10 max=5.12 maxrss=43MB
+gtk_offscreen[cairo]        frames=120 fps=60.0 cpu=21.3% (user 20.5% sys 0.8%) draw_ms mean=3.53 p50=3.50 p99=4.29 max=5.16 maxrss=46MB
+
+== X11 (Xvfb)
+[exit 0] sdl_accel[opengl/x11]       frames=180 fps=60.0 cpu=211.7% (user 208.5% sys 3.2%) draw_ms mean=9.55 p50=9.71 p99=10.42 max=10.43 maxrss=122MB
+[exit 0] sdl_software[software/x11]  frames=180 fps=60.0 cpu=31.1% (user 30.7% sys 0.4%) draw_ms mean=5.91 p50=6.01 p99=7.60 max=8.74 maxrss=86MB
+[exit 0] gtk_window[cairo]           frames=180 fps=60.0 cpu=18.2% (user 17.7% sys 0.5%) draw_ms mean=2.70 p50=2.75 p99=3.01 max=3.03 maxrss=91MB
+
+== Wayland (weston headless)
+[exit 0] gtk wayland: gtk_window[cairo]           frames=95 fps=31.5 cpu=15.8% (user 15.6% sys 0.3%) draw_ms mean=3.40 p50=3.41 p99=3.95 max=3.95 maxrss=66MB
+[exit 0] sdl wayland software: sdl_software[software/wayland] frames=180 fps=60.0 cpu=145.4% (user 135.2% sys 10.2%) draw_ms mean=9.39 p50=9.34 p99=14.43 max=14.99 maxrss=132MB
+[exit 0] sdl wayland accel: sdl_accel[opengl/wayland]   frames=180 fps=60.0 cpu=177.1% (user 168.4% sys 8.7%) draw_ms mean=7.93 p50=7.28 p99=14.12 max=14.13 maxrss=126MB
+[exit 0] sdl auto (wayland only): sdl_software[software/wayland] frames=180 fps=60.0 cpu=145.1% (user 135.5% sys 9.6%) draw_ms mean=9.23 p50=9.48 p99=13.94 max=14.69 maxrss=129MB
+
+== prebuilt CARLA clients (built on Ubuntu 22.04, mounted at /apps): do they start here?
+manual_control       MISSING/INCOMPATIBLE: /apps/manual_control: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.34' not found (required by /apps/manua;/apps/manual_control: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.32' not found (required by /apps/manua;/apps/manual_control: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.33' not found (required by /apps/manua;/apps/manual_control: /lib/x86_64-linux-gnu/libstdc++.so.6: version `GLIBCXX_3.4.30' not found (required by /a;/apps/manual_control: /lib/x86_64-linux-gnu/libstdc++.so.6: version `GLIBCXX_3.4.29' not found (required by /a;/apps/manual_control: /lib/x86_64-linux-gnu/libstdc++.so.6: version `CXXABI_1.3.13' not found (required by /ap;/apps/manual_control: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.34' not found (required by /apps/manua
+/apps/manual_control: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.32' not found (required by /apps/manua
+/apps/manual_control: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.33' not found (required by /apps/manua
+/apps/manual_control: /lib/x86_64-linux-gnu/libstdc++.so.6: version `GLIBCXX_3.4.30' not found (required by /a
+/apps/manual_control: /lib/x86_64-linux-gnu/libstdc++.so.6: version `GLIBCXX_3.4.29' not found (required by /a
+/apps/manual_control: /lib/x86_64-linux-gnu/libstdc++.so.6: version `CXXABI_1.3.13' not found (required by /ap
+manual_control_gtk   MISSING/INCOMPATIBLE: /apps/manual_control_gtk: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.34' not found (required by /apps/m;/apps/manual_control_gtk: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.32' not found (required by /apps/m;/apps/manual_control_gtk: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.33' not found (required by /apps/m;/apps/manual_control_gtk: /lib/x86_64-linux-gnu/libstdc++.so.6: version `GLIBCXX_3.4.30' not found (required b;/apps/manual_control_gtk: /lib/x86_64-linux-gnu/libstdc++.so.6: version `GLIBCXX_3.4.29' not found (required b;/apps/manual_control_gtk: /lib/x86_64-linux-gnu/libstdc++.so.6: version `CXXABI_1.3.13' not found (required by;/apps/manual_control_gtk: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.34' not found (required by /apps/m
+/apps/manual_control_gtk: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.32' not found (required by /apps/m
+/apps/manual_control_gtk: /lib/x86_64-linux-gnu/libc.so.6: version `GLIBC_2.33' not found (required by /apps/m
+/apps/manual_control_gtk: /lib/x86_64-linux-gnu/libstdc++.so.6: version `GLIBCXX_3.4.30' not found (required b
+/apps/manual_control_gtk: /lib/x86_64-linux-gnu/libstdc++.so.6: version `GLIBCXX_3.4.29' not found (required b
+/apps/manual_control_gtk: /lib/x86_64-linux-gnu/libstdc++.so.6: version `CXXABI_1.3.13' not found (required by
+
+done

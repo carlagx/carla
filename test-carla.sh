@@ -65,9 +65,11 @@ SKIP=0
 rank() { case "$1" in minimal) echo 1;; middle) echo 2;; full) echo 3;; esac; }
 at_least() { [ "$(rank "$LEVEL")" -ge "$(rank "$1")" ]; }
 
-ok()   { echo "  [PASS] $1"; PASS=$((PASS+1)); }
-bad()  { echo "  [FAIL] $1"; FAIL=$((FAIL+1)); }
-skip() { echo "  [SKIP] $1"; SKIP=$((SKIP+1)); }
+# Every result is also appended to $LOGDIR/summary.txt so scan-carla-logs.sh
+# can tell later which checks passed without re-running them.
+ok()   { echo "  [PASS] $1"; PASS=$((PASS+1)); printf 'PASS\t%s\n' "$1" >>"$LOGDIR/summary.txt"; }
+bad()  { echo "  [FAIL] $1"; FAIL=$((FAIL+1)); printf 'FAIL\t%s\n' "$1" >>"$LOGDIR/summary.txt"; }
+skip() { echo "  [SKIP] $1"; SKIP=$((SKIP+1)); printf 'SKIP\t%s\n' "$1" >>"$LOGDIR/summary.txt"; }
 head_() { echo; echo "== $1 =="; }
 
 # check "name" cmd...   (output goes to the log dir)
@@ -173,7 +175,9 @@ fi
 
 if ! port_open; then
   echo; echo "Server is not reachable, aborting."
-  echo "Logs: $LOGDIR"; exit $((FAIL > 0 ? FAIL : 1))
+  echo "Logs: $LOGDIR"
+  printf 'TOTAL\tlevel=%s mode=%s ABORTED (server not reachable) PASS: %s FAIL: %s SKIP: %s\n' "$LEVEL" "$MODE" "$PASS" "$FAIL" "$SKIP" >>"$LOGDIR/summary.txt"
+  exit $((FAIL > 0 ? FAIL : 1))
 fi
 
 ################################################################################
@@ -298,4 +302,5 @@ echo "============================================================"
 echo " Level: $LEVEL | Mode: $MODE | PASS: $PASS  FAIL: $FAIL  SKIP: $SKIP"
 echo " Logs : $LOGDIR"
 echo "============================================================"
+printf 'TOTAL\tlevel=%s mode=%s PASS: %s FAIL: %s SKIP: %s\n' "$LEVEL" "$MODE" "$PASS" "$FAIL" "$SKIP" >>"$LOGDIR/summary.txt"
 exit "$FAIL"

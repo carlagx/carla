@@ -1,0 +1,49 @@
+# CLIENT process CPU only (X server and compositor are NOT included: see system_cpu.txt and apps.txt).
+# 2026-10-17T12:50:46+02:00  host: cgx, Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz, 12 threads
+# gpu: NVIDIA GeForce RTX 2080 Ti, 595.84; session x11 on :1
+# server: CARLA 0.9.16, offscreen; scenario: autopilot, vehicle vehicle.audi.a2, RGB camera 1280x720, async
+# 10 s warm-up, then 15 s measured; CPU is the sum over all threads of the client process
+## run 1
+python-pygame  cpu=142,1% of one core over 15 s   rss=270 MB   peak=272 MB
+                 thread  57,9%  [main] python3
+                 thread   8,0%  python3
+                 thread   8,0%  python3
+                 thread   7,9%  python3
+                 thread   6,9%  python3
+                 thread   6,9%  python3
+cpp-sdl2       cpu=101,1% of one core over 15 s   rss=225 MB   peak=227 MB
+                 thread  31,6%  [main] manual_control
+                 thread   6,1%  manual_control
+                 thread   6,1%  manual_control
+                 thread   5,9%  manual_control
+                 thread   5,9%  manual_control
+                 thread   5,8%  manual_control
+cpp-gtk3       cpu= 87,9% of one core over 15 s   rss=162 MB   peak=162 MB
+                 thread  19,4%  [main] manual_control_
+                 thread   6,1%  manual_control_
+                 thread   6,0%  manual_control_
+                 thread   5,9%  manual_control_
+                 thread   5,8%  manual_control_
+                 thread   5,8%  manual_control_
+## run 2
+python-pygame  cpu=154,8% of one core over 15 s   rss=270 MB   peak=270 MB
+                 thread  53,4%  [main] python3
+                 thread   9,2%  python3
+                 thread   9,1%  python3
+                 thread   8,9%  python3
+                 thread   8,9%  python3
+                 thread   8,5%  python3
+cpp-sdl2       cpu= 78,2% of one core over 15 s   rss=210 MB   peak=210 MB
+                 thread  27,0%  [main] manual_control
+                 thread   4,7%  manual_control
+                 thread   4,6%  manual_control
+                 thread   4,5%  manual_control
+                 thread   4,2%  manual_control
+                 thread   4,2%  manual_control
+cpp-gtk3       cpu= 80,5% of one core over 15 s   rss=166 MB   peak=166 MB
+                 thread  20,2%  [main] manual_control_
+                 thread   5,7%  manual_control_
+                 thread   5,5%  manual_control_
+                 thread   5,3%  manual_control_
+                 thread   5,1%  manual_control_
+                 thread   5,0%  manual_control_
