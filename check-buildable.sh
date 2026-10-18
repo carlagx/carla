@@ -51,8 +51,9 @@ mkdir -p "$LOGDIR"
 
 FAILED=0
 declare -a SUMMARY
-pass()    { echo -e "${GREEN}[ OK ]${NC} $1"; SUMMARY+=("OK    $1"); }
-fail()    { echo -e "${RED}[FAIL]${NC} $1"; SUMMARY+=("FAIL  $1"); FAILED=$((FAILED+1)); }
+# Results are mirrored to $LOGDIR/summary.txt for scan-carla-logs.sh.
+pass()    { echo -e "${GREEN}[ OK ]${NC} $1"; SUMMARY+=("OK    $1"); printf 'PASS\t%s\n' "$1" >>"$LOGDIR/summary.txt"; }
+fail()    { echo -e "${RED}[FAIL]${NC} $1"; SUMMARY+=("FAIL  $1"); FAILED=$((FAILED+1)); printf 'FAIL\t%s\n' "$1" >>"$LOGDIR/summary.txt"; }
 warn()    { echo -e "${YELLOW}[WARN]${NC} $1"; }
 info()    { echo -e "${BLUE}[INFO]${NC} $1"; }
 section() { echo; echo -e "${BLUE}== $1 ==${NC}"; }
@@ -143,4 +144,5 @@ if [ "$FAILED" -eq 0 ]; then
 else
   echo -e "${RED}$FAILED check(s) failed.${NC} Logs: $LOGDIR"
 fi
+printf 'TOTAL\tFAIL: %s\n' "$FAILED" >>"$LOGDIR/summary.txt"
 exit "$FAILED"
