@@ -64,4 +64,3 @@ compile_commands.json
 /build-check-logs/
 /client-build-*/
 /report.txt
-/issues/reports/
