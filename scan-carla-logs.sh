@@ -4,12 +4,13 @@
 # a Markdown report.
 #
 # Usage:
-#   ./scan-carla-logs.sh [--since YYYY-MM-DD] [--ubt] [--out FILE] [--quiet]
+#   ./scan-carla-logs.sh [--since YYYY-MM-DD] [--ubt] [--out FILE] [--no-history] [--quiet]
 #
 #   --since DATE   only look at log files modified on/after DATE
 #   --ubt          also scan UnrealBuildTool logs under $UE4_ROOT
-#   --out FILE     report path (default issues/reports/scan-<timestamp>.md)
-#   --quiet        no terminal summary, only the report
+#   --out FILE     full report path (default issues/reports/scan-<timestamp>.md, git-ignored)
+#   --no-history   do not append the compact summary to issues/SCANS.md (tracked in git)
+#   --quiet        no terminal summary, only the files
 #
 # Exit code: number of unknown error groups (0 = everything is known or clean).
 #
@@ -34,12 +35,14 @@ GREP=/usr/bin/grep
 [ -x "$GREP" ] || GREP=$(command -v grep)
 UE4_ROOT="${UE4_ROOT:-$HOME/UnrealEngine_4.26}"
 
-SINCE="" UBT=0 OUT="" QUIET=0
+SINCE="" UBT=0 OUT="" QUIET=0 HISTORY=1
+HISTFILE_MD="issues/SCANS.md"
 while [ $# -gt 0 ]; do
     case "$1" in
         --since) SINCE="$2"; shift 2 ;;
         --ubt) UBT=1; shift ;;
         --out) OUT="$2"; shift 2 ;;
+        --no-history) HISTORY=0; shift ;;
         --quiet) QUIET=1; shift ;;
         -h|--help) sed -n '2,25p' "$0"; exit 0 ;;
         *) echo "Unknown option: $1" >&2; exit 1 ;;
@@ -317,8 +320,47 @@ issue_link() { awk -F'\t' -v id="$1" '$1 == id { printf "[%s](../%s) %s", $1, $3
     fi
 } >"$OUT"
 
+# ---------------------------------------------------------------- history (one tracked file, append only)
+if [ $HISTORY = 1 ]; then
+    if [ ! -f "$HISTFILE_MD" ]; then
+        {
+            echo "# Scan history"
+            echo
+            echo "Appended by scan-carla-logs.sh, newest entry at the bottom. One entry per run."
+            echo "Full per-run reports (with log context) are in issues/reports/ (not in git)."
+        } >"$HISTFILE_MD"
+    fi
+    # Runs are listed only if newer than the previous entry, so old runs are not repeated.
+    last=$($GREP -a '^## ' "$HISTFILE_MD" | tail -1 | sed 's/^## \([0-9-]* [0-9:]*\).*/\1/')
+    last_ts=""
+    [ -n "$last" ] && last_ts=$(date -d "$last" +%Y%m%d-%H%M%S 2>/dev/null)
+    {
+        echo
+        echo "## $(date +'%F %T') | branch $(git rev-parse --abbrev-ref HEAD 2>/dev/null) | commit $(git rev-parse --short HEAD 2>/dev/null) | since ${SINCE:-all} | ubt $UBT"
+        echo "Unknown $N_UNKNOWN ($N_GROUPS groups) | Verified $N_VERIFIED | Open $N_OPEN | Noise $N_NOISE | exit $N_GROUPS"
+        echo
+        echo "### Unknown"
+        if [ "$N_UNKNOWN" -eq 0 ]; then echo "none"; else
+            awk -F'\t' '$1 == "unknown" { c[$7]++ } END { for (k in c) print c[k] "\t" k }' "$CLASS" | sort -t$'\t' -k1,1nr |
+            while IFS=$'\t' read -r cnt norm; do
+                echo "- ${cnt}x \`$(printf '%s' "$norm" | cut -c1-120)\`"
+                awk -F'\t' -v n="$norm" '$1 == "unknown" && $7 == n { print "  - `" $4 ":" $5 "`" }' "$CLASS" | head -3
+            done
+        fi
+        echo "### Known"
+        for cls in verified open noise; do
+            line=$(awk -F'\t' -v c="$cls" '$1 == c { print $2 }' "$CLASS" | sort | uniq -c | awk '{ printf "%s%s x%s", (n++ ? ", " : ""), $2, $1 }')
+            [ -n "$line" ] && echo "- $cls: $line"
+        done
+        echo "### Runs"
+        new_runs=$(awk -F'\t' -v last="$last_ts" '$2 > last { print "- " $1 " " $2 ": " $3 }' "$RUNS" | sort -k3,3)
+        [ -n "$new_runs" ] && echo "$new_runs" || echo "none new"
+    } >>"$HISTFILE_MD"
+fi
+
 if [ $QUIET = 0 ]; then
     echo "Unknown: $N_UNKNOWN ($N_GROUPS groups)  Verified: $N_VERIFIED  Open: $N_OPEN  Noise: $N_NOISE"
     echo "Report: $OUT"
+    [ $HISTORY = 1 ] && echo "History: $HISTFILE_MD (+1 entry)"
 fi
 exit "$N_GROUPS"
