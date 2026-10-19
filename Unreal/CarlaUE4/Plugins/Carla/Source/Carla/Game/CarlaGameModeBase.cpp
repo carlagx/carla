@@ -21,6 +21,12 @@
 #include "EngineUtils.h"
 #include "Tagger.h"
 #include "TaggedComponent.h"
+#include "glTFRuntimeFunctionLibrary.h"
+#include "glTFRuntimeAssetActor.h"
+#include "Kismet/GameplayStatics.h"
+#include "Misc/CommandLine.h"
+#include "Misc/Parse.h"
+#include "Misc/Paths.h"
 
 #include <compiler/disable-ue4-macros.h>
 #include "carla/opendrive/OpenDriveParser.h"
@@ -251,6 +257,65 @@ void ACarlaGameModeBase::BeginPlay()
     }
   }
   EnableOverlapEvents();
+
+  SpawnRuntimeGltfEnvironment();
+}
+
+void ACarlaGameModeBase::SpawnRuntimeGltfEnvironment()
+{
+  // Laufzeit-glTF-Umgebung (glTFRuntime): Lädt eine glTF/GLB, die per CommandLine
+  // (-gltf="/pfad/x.gltf") oder über die Env-Var CARLA_RUNTIME_GLTF angegeben ist,
+  // und spawnt sie als sichtbare Umgebung. Die befahrbare Welt kommt weiterhin aus
+  // der OpenDRIVE (.xodr). BeginPlay feuert bei jedem World-Load erneut (u.a. nach
+  // generate_opendrive_world), daher landet die Umgebung in der finalen Welt.
+  UWorld* World = GetWorld();
+  if (World == nullptr)
+  {
+    return;
+  }
+
+  FString GltfPath;
+  if (!FParse::Value(FCommandLine::Get(), TEXT("gltf="), GltfPath))
+  {
+    GltfPath = FPlatformMisc::GetEnvironmentVariable(TEXT("CARLA_RUNTIME_GLTF"));
+  }
+  GltfPath = GltfPath.TrimQuotes();
+  if (GltfPath.IsEmpty())
+  {
+    return;
+  }
+  if (!FPaths::FileExists(GltfPath))
+  {
+    UE_LOG(LogCarla, Warning, TEXT("glTFRuntime: Datei nicht gefunden: %s"), *GltfPath);
+    return;
+  }
+
+  FglTFRuntimeConfig LoaderConfig;          // Default: SceneScale=100 (m->cm),
+  LoaderConfig.bAllowExternalFiles = true;  // Achsen glTF->UE, externe Dateien ok
+  UglTFRuntimeAsset* Asset =
+      UglTFRuntimeFunctionLibrary::glTFLoadAssetFromFilename(GltfPath, false, LoaderConfig);
+  if (Asset == nullptr)
+  {
+    UE_LOG(LogCarla, Warning, TEXT("glTFRuntime: Laden fehlgeschlagen: %s"), *GltfPath);
+    return;
+  }
+
+  FglTFRuntimeStaticMeshConfig MeshConfig;
+  MeshConfig.bBuildComplexCollision = true; // Fahrzeug fällt sonst durch das Mesh
+  MeshConfig.CollisionComplexity = ECollisionTraceFlag::CTF_UseComplexAsSimple;
+
+  AglTFRuntimeAssetActor* GltfActor =
+      World->SpawnActorDeferred<AglTFRuntimeAssetActor>(
+          AglTFRuntimeAssetActor::StaticClass(), FTransform::Identity);
+  if (GltfActor == nullptr)
+  {
+    UE_LOG(LogCarla, Warning, TEXT("glTFRuntime: Actor-Spawn fehlgeschlagen"));
+    return;
+  }
+  GltfActor->Asset = Asset;                 // ExposeOnSpawn-Properties vor
+  GltfActor->StaticMeshConfig = MeshConfig; // FinishSpawning setzen
+  UGameplayStatics::FinishSpawningActor(GltfActor, FTransform::Identity);
+  UE_LOG(LogCarla, Log, TEXT("glTFRuntime: Umgebung geladen aus %s"), *GltfPath);
 }
 
 TArray<FString> ACarlaGameModeBase::GetNamesOfAllActors()

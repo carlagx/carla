@@ -134,48 +134,35 @@ if %DO_PACKAGE%==true (
 
     if not exist "!BUILD_FOLDER!" mkdir "!BUILD_FOLDER!"
 
-    call "%UE4_ROOT%\Engine\Build\BatchFiles\Build.bat"^
-        CarlaUE4Editor^
-        Win64^
-        Development^
-        -WaitMutex^
-        -FromMsBuild^
-        "%ROOT_PATH%Unreal/CarlaUE4/CarlaUE4.uproject"
+    rem Set CARLA_PACKAGE_NO_BUILD=true to skip the C++ build steps and package
+    rem with the existing binaries (works without a MSVC toolchain, e.g. on a
+    rem machine that only has the prebuilt portable kit).
+    set UAT_BUILD_FLAG=-build
+    if "%CARLA_PACKAGE_NO_BUILD%"=="true" set UAT_BUILD_FLAG=-nobuild
 
-    if errorlevel 1 goto error_build_editor
+    if not "%CARLA_PACKAGE_NO_BUILD%"=="true" (
+        call "%UE4_ROOT%\Engine\Build\BatchFiles\Build.bat"^
+            CarlaUE4Editor^
+            Win64^
+            Development^
+            -WaitMutex^
+            -FromMsBuild^
+            "%ROOT_PATH%Unreal/CarlaUE4/CarlaUE4.uproject"
 
-    echo "%UE4_ROOT%\Engine\Build\BatchFiles\Build.bat"^
-        CarlaUE4^
-        Win64^
-        %PACKAGE_CONFIG%^
-        -WaitMutex^
-        -FromMsBuild^
-        "%ROOT_PATH%Unreal/CarlaUE4/CarlaUE4.uproject"
-    call "%UE4_ROOT%\Engine\Build\BatchFiles\Build.bat"^
-        CarlaUE4^
-        Win64^
-        %PACKAGE_CONFIG%^
-        -WaitMutex^
-        -FromMsBuild^
-        "%ROOT_PATH%Unreal/CarlaUE4/CarlaUE4.uproject"
+        if errorlevel 1 goto error_build_editor
 
-    if errorlevel 1 goto error_build
+        call "%UE4_ROOT%\Engine\Build\BatchFiles\Build.bat"^
+            CarlaUE4^
+            Win64^
+            %PACKAGE_CONFIG%^
+            -WaitMutex^
+            -FromMsBuild^
+            "%ROOT_PATH%Unreal/CarlaUE4/CarlaUE4.uproject"
 
-    echo "%UE4_ROOT%\Engine\Build\BatchFiles\RunUAT.bat"^
-        BuildCookRun^
-        -nocompileeditor^
-        -TargetPlatform=Win64^
-        -Platform=Win64^
-        -installed^
-        -nop4^
-        -project="%ROOT_PATH%Unreal/CarlaUE4/CarlaUE4.uproject"^
-        -cook^
-        -stage^
-        -build^
-        -archive^
-        -archivedirectory="!BUILD_FOLDER!"^
-        -package^
-        -clientconfig=%PACKAGE_CONFIG%
+        if errorlevel 1 goto error_build
+    ) else (
+        echo %FILE_N% Skipping C++ build steps ^(CARLA_PACKAGE_NO_BUILD=true^), packaging existing binaries...
+    )
 
     call "%UE4_ROOT%\Engine\Build\BatchFiles\RunUAT.bat"^
         BuildCookRun^
@@ -187,7 +174,7 @@ if %DO_PACKAGE%==true (
         -project="%ROOT_PATH%Unreal/CarlaUE4/CarlaUE4.uproject"^
         -cook^
         -stage^
-        -build^
+        !UAT_BUILD_FLAG!^
         -archive^
         -archivedirectory="!BUILD_FOLDER!"^
         -package^
