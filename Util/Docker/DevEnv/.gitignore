@@ -1,0 +1,6 @@
+credentials/credentials.env
+credentials/id_*
+credentials/*.crt
+artifacts/
+offline-cache/
+download/

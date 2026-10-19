@@ -28,6 +28,8 @@ done
 # -- Get Plugins ---------------------------------------------------------------
 # ==============================================================================
 
+source "$(dirname "$0")/OfflineCache.sh"
+
 log "Retrieving Plugins"
 
 if [[ -d "${CARLA_ROOT_FOLDER}Plugins" ]] ; then

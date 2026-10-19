@@ -1,0 +1,7 @@
+# one Open VSX extension id per line
+llvm-vs-code-extensions.vscode-clangd
+ms-python.python
+ms-vscode.cmake-tools
+twxs.cmake
+redhat.vscode-yaml
+timonwong.shellcheck

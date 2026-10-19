@@ -71,7 +71,7 @@ if not "%1"=="" (
 )
 
 rem If not defined, use Visual Studio 2022 as tool set
-if "%TOOLSET%" == "" set TOOLSET=msvc-14.3
+if "%TOOLSET%" == "" set TOOLSET=msvc-14.4
 if %GENERATOR% == "" set GENERATOR="Visual Studio 17 2022"
 
 rem If is not set, set the number of parallel jobs to the number of CPU threads
@@ -379,14 +379,15 @@ IF "%USE_ROS2%"=="true" (
 )
 
 rem ============================================================================
-rem -- Assets download URL -----------------------------------------------------
+rem -- Assets content repository -----------------------------------------------
 rem ============================================================================
 
 FOR /F "usebackq tokens=1,2" %%i in ("%VERSION_FILE%") do (
     set ASSETS_VERSION=%%i
     set HASH=%%j
 )
-set URL=https://carla-assets.s3.us-east-005.backblazeb2.com/%HASH%.tar.gz
+FOR /F "tokens=2 delims=_" %%i in ("%HASH%") do set ASSETS_COMMIT=%%i
+set CONTENT_REPO=https://bitbucket.org/carla-simulator/carla-content.git
 
 rem ============================================================================
 rem -- Generate CMake ----------------------------------------------------------
@@ -413,6 +414,7 @@ set CMAKE_CONFIG_FILE=%INSTALLATION_DIR%CMakeLists.txt.in
 >>"%CMAKE_CONFIG_FILE%" echo add_definitions(-DHAVE_SNPRINTF)
 >>"%CMAKE_CONFIG_FILE%" echo STRING (REGEX REPLACE "/RTC(su|[1su])" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 >>"%CMAKE_CONFIG_FILE%" echo.
+>>"%CMAKE_CONFIG_FILE%" echo add_definitions(-DBOOST_ALL_NO_LIB)
 >>"%CMAKE_CONFIG_FILE%" echo add_definitions(-DBOOST_ERROR_CODE_HEADER_ONLY)
 >>"%CMAKE_CONFIG_FILE%" echo add_definitions(-DLIBCARLA_IMAGE_WITH_PNG_SUPPORT)
 >>"%CMAKE_CONFIG_FILE%" echo.
@@ -478,11 +480,14 @@ rem ============================================================================
     echo    You only need the ASSET PACK with all the meshes and textures.
     echo.
     echo    This script provides the assets for CARLA %ASSETS_VERSION%
-    echo    You can download the assets from here:
+    echo    You can clone the assets from here:
     echo.
-    echo        %URL%
+    echo        set GIT_LFS_SKIP_SMUDGE=1
+    echo        git clone %CONTENT_REPO% "%CONTENT_DIR%"
+    echo        git -C "%CONTENT_DIR%" checkout %ASSETS_COMMIT%
+    echo        set GIT_LFS_SKIP_SMUDGE=
+    echo        git -C "%CONTENT_DIR%" lfs pull
     echo.
-    echo    Unzip it in the "%CONTENT_DIR%" folder.
     echo    If you want another version, search it in %VERSION_FILE%.
     echo.
     goto good_exit

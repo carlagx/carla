@@ -55,3 +55,5 @@ function move_if_changed {
 }
 
 CARLA_BUILD_CONCURRENCY=`nproc --all`
+
+source "$(dirname "${BASH_SOURCE[0]}")/OfflineCache.sh"

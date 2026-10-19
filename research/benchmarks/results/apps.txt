@@ -1,0 +1,71 @@
+# 2026-10-17T13:39:18+02:00  host: cgx, Intel(R) Core(TM) i7-6850K CPU @ 3.60GHz, 12 threads
+# gpu: NVIDIA GeForce RTX 2080 Ti, 595.84; session x11 on :1
+# server: CARLA 0.9.16, offscreen; scenario: autopilot, vehicle vehicle.audi.a2, RGB camera 1280x720, async
+# 10 s warm-up, then 20 s measured; client = all threads of the client process;
+# display pipeline = X server + compositor (Xorg gnome-shell ), idle ~2%
+## run 1
+python-pygame  client 145,3% + display pipeline  14,7% = total 160,0% of one core (20 s)   rss=270 MB   peak=272 MB
+                 thread  51,7%  [main] python3
+                 thread   9,6%  python3
+                 thread   8,5%  python3
+                 thread   8,1%  python3
+                 thread   8,1%  python3
+                 thread   8,0%  python3
+cpp-sdl2       client  99,2% + display pipeline  17,1% = total 116,3% of one core (20 s)   rss=217 MB   peak=217 MB
+                 thread  30,4%  [main] manual_control
+                 thread   6,1%  manual_control
+                 thread   5,9%  manual_control
+                 thread   5,8%  manual_control
+                 thread   5,8%  manual_control
+                 thread   5,7%  manual_control
+cpp-gtk3       client  81,0% + display pipeline  42,0% = total 123,0% of one core (20 s)   rss=162 MB   peak=162 MB
+                 thread  19,7%  [main] manual_control_
+                 thread   5,5%  manual_control_
+                 thread   5,4%  manual_control_
+                 thread   5,3%  manual_control_
+                 thread   5,2%  manual_control_
+                 thread   5,1%  manual_control_
+## run 2
+python-pygame  client 152,7% + display pipeline  14,8% = total 167,5% of one core (20 s)   rss=271 MB   peak=272 MB
+                 thread  53,7%  [main] python3
+                 thread   9,1%  python3
+                 thread   8,4%  python3
+                 thread   8,2%  python3
+                 thread   8,2%  python3
+                 thread   8,2%  python3
+cpp-sdl2       client  97,8% + display pipeline  17,1% = total 114,8% of one core (20 s)   rss=221 MB   peak=221 MB
+                 thread  32,1%  [main] manual_control
+                 thread   6,1%  manual_control
+                 thread   5,6%  manual_control
+                 thread   5,6%  manual_control
+                 thread   5,6%  manual_control
+                 thread   5,5%  manual_control
+cpp-gtk3       client  93,7% + display pipeline  41,2% = total 134,9% of one core (20 s)   rss=163 MB   peak=165 MB
+                 thread  20,1%  [main] manual_control_
+                 thread   6,5%  manual_control_
+                 thread   6,3%  manual_control_
+                 thread   6,2%  manual_control_
+                 thread   6,2%  manual_control_
+                 thread   6,2%  manual_control_
+## run 3
+python-pygame  client 148,6% + display pipeline  14,8% = total 163,3% of one core (20 s)   rss=274 MB   peak=276 MB
+                 thread  52,1%  [main] python3
+                 thread   8,6%  python3
+                 thread   8,5%  python3
+                 thread   8,4%  python3
+                 thread   8,4%  python3
+                 thread   8,1%  python3
+cpp-sdl2       client  97,8% + display pipeline  17,3% = total 115,1% of one core (20 s)   rss=218 MB   peak=218 MB
+                 thread  31,3%  [main] manual_control
+                 thread   6,0%  manual_control
+                 thread   5,8%  manual_control
+                 thread   5,7%  manual_control
+                 thread   5,6%  manual_control
+                 thread   5,5%  manual_control
+cpp-gtk3       client  97,3% + display pipeline  41,9% = total 139,2% of one core (20 s)   rss=165 MB   peak=165 MB
+                 thread  20,2%  [main] manual_control_
+                 thread   6,6%  manual_control_
+                 thread   6,6%  manual_control_
+                 thread   6,6%  manual_control_
+                 thread   6,4%  manual_control_
+                 thread   6,3%  manual_control_

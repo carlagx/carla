@@ -2,4 +2,7 @@
 /bin
 /build
 /libcarla-install
+/bin-*
+/build-*
+/libcarla-install-*
 _*

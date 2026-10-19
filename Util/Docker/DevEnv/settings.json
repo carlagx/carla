@@ -1,0 +1,15 @@
+{
+  "workbench.colorTheme": "Default Dark Modern",
+  "terminal.integrated.defaultProfile.linux": "bash",
+  "files.watcherExclude": {
+    "**/Build/**": true,
+    "**/Dist/**": true,
+    "**/Unreal/CarlaUE4/Intermediate/**": true,
+    "**/Unreal/CarlaUE4/Saved/**": true
+  },
+  "search.exclude": {
+    "**/Build/**": true,
+    "**/Dist/**": true
+  },
+  "clangd.arguments": ["--background-index", "--compile-commands-dir=${workspaceFolder}/Build"]
+}

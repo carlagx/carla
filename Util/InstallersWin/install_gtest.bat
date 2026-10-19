@@ -76,11 +76,12 @@ echo.%GENERATOR% | findstr /C:"Visual Studio" >nul && (
 )
 
 cmake .. -G %GENERATOR% %PLATFORM%^
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5^
     -DCMAKE_BUILD_TYPE=Release^
     -DCMAKE_CXX_FLAGS_RELEASE="/MD /MP"^
     -DCMAKE_INSTALL_PREFIX="%GT_INSTALL_DIR:\=/%"^
     -DCMAKE_CXX_FLAGS=/D_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING^
-    "%GT_SRC_DIR%"
+    "%GT_SRC_DIR:~0,-1%"
 if %errorlevel%  neq 0 goto error_cmake
 
 echo %FILE_N% Building...

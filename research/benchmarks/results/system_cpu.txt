@@ -1,0 +1,12 @@
+# 2026-10-17T13:38:01+02:00  Ubuntu 22.04.5 LTS, session x11, DISPLAY=:1
+# display pipeline processes sampled:       1 gnome-shell       1 Xorg 
+# 6 s per run at 60 fps; CPU in % of one core; idle baseline first (no benchmark running)
+idle display pipeline (4 s)        X server+compositor 1,8%
+## 1280x720
+sdl accel (OpenGL) +cache          client  33,0%   X server+compositor  11,6%   total  44,6%
+sdl software                       client  60,0%   X server+compositor  12,3%   total  72,3%
+gtk window (Cairo) +cache          client  17,0%   X server+compositor  36,5%   total  53,5%
+## 1920x1080
+sdl accel (OpenGL) +cache          client  63,0%   X server+compositor  12,6%   total  75,6%
+sdl software                       client  68,0%   X server+compositor  12,9%   total  80,9%
+gtk window (Cairo) +cache          client  25,0%   X server+compositor  57,7%   total  82,7%

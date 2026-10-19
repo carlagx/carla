@@ -45,12 +45,23 @@ public:
     while(counter < MIN_TRY_COUNT) {
       try {
 
-        /// Create server instance.
-        server = new ::rpc::server(RPCPort);
+        /// Create server instance. Bind to localhost only: the TM RPC has no
+        /// authentication or encryption, and the address advertised to clients
+        /// via GetLocalIP()/AddTrafficManagerRunning() is already the loopback
+        /// address, so it must not listen on all interfaces.
+        server = new ::rpc::server("127.0.0.1", RPCPort);
 
-      } catch(std::exception) {
+        /// Bind succeeded: record the port we actually bound to. RPCPort is a
+        /// reference, so the caller (TrafficManagerLocal) sees the real port and
+        /// can register it via AddTrafficManagerRunning(server.port()); _RPCPort
+        /// keeps port() in sync with that value.
+        _RPCPort = RPCPort;
+
+      } catch(const std::exception&) {
         using namespace std::chrono_literals;
-        /// Update port number and try again.
+        /// Bind error (e.g. the port is taken by a stale process): advance to the
+        /// next port and try again so we fall back to a free one automatically.
+        RPCPort++;
         std::this_thread::sleep_for(500ms);
       }
 

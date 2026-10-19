@@ -75,7 +75,7 @@ LibCarla: setup
 	@"${CARLA_BUILD_TOOLS_FOLDER}/BuildLibCarla.bat" --server --client --generator "$(GENERATOR)"
 
 setup: downloadplugin
-	@"${CARLA_BUILD_TOOLS_FOLDER}/Setup.bat" --boost-toolset msvc-14.3 --generator "$(GENERATOR)" $(ARGS)
+	@"${CARLA_BUILD_TOOLS_FOLDER}/Setup.bat" --boost-toolset msvc-14.4 --generator "$(GENERATOR)" $(ARGS)
 
 
 .PHONY: Plugins

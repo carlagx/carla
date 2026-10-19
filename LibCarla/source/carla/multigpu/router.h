@@ -17,6 +17,7 @@
 #include <boost/asio/ip/tcp.hpp>
 
 #include <mutex>
+#include <string>
 #include <vector>
 #include <sstream>
 #include <unordered_map>
@@ -37,6 +38,7 @@ namespace multigpu {
 
     Router(void);
     explicit Router(uint16_t port);
+    Router(const std::string &address, uint16_t port);
     ~Router();
 
     void Write(MultiGPUCommand id, Buffer &&buffer);

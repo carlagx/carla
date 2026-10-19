@@ -6,7 +6,7 @@
 
 DOC_STRING="Build and launch CarlaUE4."
 
-USAGE_STRING="Usage: $0 [-h|--help] [--build] [--rebuild] [--launch] [--clean] [--hard-clean] [--opengl] [--chrono] [--chrono-path=PATH] [--ros2] [--rmw=MIDDLEWARE] [--ros-domain-id=N]"
+USAGE_STRING="Usage: $0 [-h|--help] [--build] [--rebuild] [--launch] [--clean] [--hard-clean] [--opengl] [--chrono] [--chrono-path=PATH] [--ros2] [--rmw=MIDDLEWARE] [--ros-domain-id=N] [--listen-host=IP]"
 
 REMOVE_INTERMEDIATE=false
 HARD_CLEAN=false
@@ -24,13 +24,16 @@ RMW=""
 # does not shadow the standard ROS_DOMAIN_ID environment variable, which the
 # launched editor reads as a fallback when --ros-domain-id is not given.
 ROS_DOMAIN_ID_ARG=""
+# Holds the value of --listen-host (the IP/host the server binds its listeners
+# to). Empty leaves the editor/CarlaSettings default (127.0.0.1).
+LISTEN_HOST=""
 
 EDITOR_FLAGS=""
 
 GDB=
 RHI="-vulkan"
 
-OPTS=`getopt -o h --long help,build,rebuild,launch,clean,hard-clean,gdb,opengl,carsim,pytorch,chrono,chrono-path:,ros2,rmw:,ros-domain-id:,no-simready,no-unity,editor-flags: -n 'parse-options' -- "$@"`
+OPTS=`getopt -o h --long help,build,rebuild,launch,clean,hard-clean,gdb,opengl,carsim,pytorch,chrono,chrono-path:,ros2,rmw:,ros-domain-id:,listen-host:,no-simready,no-unity,editor-flags: -n 'parse-options' -- "$@"`
 
 eval set -- "$OPTS"
 
@@ -84,6 +87,9 @@ while [[ $# -gt 0 ]]; do
     --ros-domain-id )
       ROS_DOMAIN_ID_ARG=$2;
       shift 2 ;;
+    --listen-host )
+      LISTEN_HOST=$2;
+      shift 2 ;;
     --no-simready )
       USE_SIMREADY=false
       shift ;;
@@ -111,6 +117,9 @@ if [ -n "${RMW}" ] ; then
 fi
 if [ -n "${ROS_DOMAIN_ID_ARG}" ] ; then
   EDITOR_FLAGS="${EDITOR_FLAGS} --ros-domain-id=${ROS_DOMAIN_ID_ARG}"
+fi
+if [ -n "${LISTEN_HOST}" ] ; then
+  EDITOR_FLAGS="${EDITOR_FLAGS} --listen-host=${LISTEN_HOST}"
 fi
 
 # ==============================================================================

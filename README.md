@@ -40,6 +40,40 @@ Windows:
 * NVIDIA RTX 3070 / NVIDIA RTX 3080 / NVIDIA RTX 4090
 * Ubuntu 20.04
 
+## Was mit diesem Repository möglich ist (Stand: Oktober 2026)
+
+Diese Übersicht beschreibt die lokalen Erweiterungen des Branches `ue4-xil` (UE 4.26). Details stehen jeweils in den verlinkten Dokumenten.
+
+| Bereich | Was geht | Einstieg |
+|---|---|---|
+| **Simulation starten** | CARLA-Server (optional automatisch) und Python- oder C++-Client mit einer zentralen Konfiguration starten, inkl. Versionsbericht (Server/Client, Karte, Rendering-Modus, GPU-Nutzung) | `./carla-start.sh`, Konfiguration in `carla.conf` |
+| **Manuelle Steuerung** | Fahrzeug per Tastatur fahren (`manual_control.py`) | `./run-manual-control.sh` |
+| **Server bauen** | Eigenständiges, gepacktes CARLA-Server-Paket aus dem aktuellen Arbeitsstand erstellen | `./build-carla-server.sh` → `Dist/` |
+| **C++-Client bauen** | Autopilot-Client (`cpp_client`) und GPU-Testclient (`gpu_test`) bauen und starten | `make -C Examples/CppClient`, `build-client-final.sh` |
+| **Komplettbuild und Tests** | Server, Python-API und C++-Client bauen und gestuft testen: `minimal` (Verbindung), `middle` (Fahrzeug, Kamera, C++), `full` (Sync-Modus, Kartenwechsel, GPU-Test, Verkehr) | `./test-carla.sh minimal\|middle\|full [--mode=local\|docker]`, `./carla-build-and-test.sh` |
+| **Buildprüfung** | Prüfen, ob C++-Client und C++-Server baubar sind; optional auch das UE4-Servermodul (`--ue4`, lang) | `./check-buildable.sh` |
+| **Artefakte prüfen** | Vollständigkeit und Ergebnis eines Builds kontrollieren | `./verify-build.sh` |
+| **Treiber prüfen** | Ubuntu-Umgebung für CARLA/UE4 prüfen (GPU, Vulkan, Abhängigkeiten), Bericht als Text oder JSON, optional mit Funktionstest | `./check-drivers.sh [-r REPORT.txt] [-j] [-v] [-t]` |
+| **GPU überwachen** | Auslastung und Speicher des Servers live anzeigen und optional als CSV protokollieren | `./monitor-carla-gpu.sh [-i SEK] [-l LOG.csv]` |
+| **Entwicklungscontainer** | Isolierte Build-Umgebung mit Web-VS-Code (Port 8080) und Artefakt-Download (Port 8081); Image lässt sich exportieren und offline laden | `Util/Docker/DevEnv/manage.sh` |
+| **Offline arbeiten** | Downloads für den Build einmal aufzeichnen und auf einem Rechner ohne Internet wiederverwenden | `OFFLINE=1` in `credentials.env`, siehe `docs/BUILD_AND_TEST.md` Abschnitt 8 |
+| **Sicherheitsprüfung** | Prüfen, ob der CARLA-Server aus dem Netzwerk erreichbar ist; umfassendes Audit mit Gegenmaßnahmen | `tools/check-listen-exposure.py`, `tools/carla-security-audit.py` |
+| **Netzwerk absichern** | Server- und Traffic-Manager-Listener standardmäßig nur an localhost binden (auf diesem Branch bereits enthalten) | `tools/security-hardening-options.md`, `tools/apply-localhost-bind-fix.sh` |
+
+### Bekannte Einschränkungen
+
+- OSM→OpenDRIVE (`osm2odr`) ist deaktiviert (Konflikt zwischen xerces-c und der C++-Standardbibliothek). Das Laden von OSM-Karten im Map-Generator funktioniert deshalb nicht.
+- `CarlaUE4.uproject` steht auf `EngineAssociation: 4.26`. Lokale Änderungen daran (z. B. durch den Editor) nicht committen.
+- Ein Paket heißt `…-dirty`, solange der Git-Stand nicht committet ist.
+- Server und Python-Client müssen dieselbe Version haben (hier 0.9.16).
+
+### Weiterführende Dokumente (`docs/`)
+
+- [BUILD_AND_TEST.md](docs/BUILD_AND_TEST.md): Bauen, Starten, Testen, Fehlersuche, Offline-Build
+- [DEV_ENV_SCHRITT_FUER_SCHRITT.md](docs/DEV_ENV_SCHRITT_FUER_SCHRITT.md): Schritt-für-Schritt von der Entwicklungsumgebung bis zum Zielsystem
+- [OFFLINE_DOCKER.md](docs/OFFLINE_DOCKER.md): Docker-Entwicklungsumgebung, offline-fähig
+- [MAP_LOADING_TIPS.md](docs/MAP_LOADING_TIPS.md): Rendering und Kartenladen beschleunigen
+
 ## Documentation
 
 The [CARLA documentation](https://carla.readthedocs.io/en/latest/) is hosted on ReadTheDocs. Please see the following key links:

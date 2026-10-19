@@ -27,9 +27,12 @@ void Router::Stop() {
 }
 
 Router::Router(uint16_t port) :
+  Router(std::string("0.0.0.0"), port) { }
+
+Router::Router(const std::string &address, uint16_t port) :
   _next(0) {
 
-  _endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::make_address("0.0.0.0"), port);
+  _endpoint = boost::asio::ip::tcp::endpoint(boost::asio::ip::make_address(address), port);
   _listener = std::make_shared<carla::multigpu::Listener>(_pool.io_context(), _endpoint);
 }
 

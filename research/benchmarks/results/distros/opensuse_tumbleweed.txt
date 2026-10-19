@@ -1,0 +1,44 @@
+distro: openSUSE Tumbleweed  (family suse)   glibc: 2.44   arch: x86_64
+
+== install packages
+install exit: 0   (log tail: ..done])
+
+== versions
+sdl2       2.32.74
+SDL2_ttf   2.24.0
+gtk+-3.0   3.24.53
+cairo      1.18.6
+pango      1.58.2
+gcc        g++ (SUSE Linux) 16.2.1 20260929
+SDL2 runtime library: /usr/lib64/libSDL2-2.0.so.0.3200.74, provided by: libSDL2-2_0-0-2.32.74-1.1.x86_64; links SDL3: 0
+fontconfig monospace: /usr/share/fonts/truetype/DejaVuSansMono.ttf
+
+== newer toolkits in the distribution (package query only)
+SDL3-devel         3.4.18-1.1
+gtk4-devel         4.22.5-1.1
+qt6-base-devel     6.11.2-2.1
+
+== build
+bench_sdl build exit: 0   warnings: 0
+bench_gtk build exit: 0   warnings: 0
+
+== offscreen (no display)
+sdl_offscreen[software/dummy] frames=120 fps=60.0 cpu=37.3% (user 37.2% sys 0.0%) draw_ms mean=6.20 p50=6.27 p99=6.75 max=6.79 maxrss=47MB
+gtk_offscreen[cairo]        frames=120 fps=60.0 cpu=22.9% (user 22.9% sys 0.0%) draw_ms mean=3.79 p50=3.81 p99=4.02 max=4.08 maxrss=50MB
+
+== X11 (Xvfb)
+[exit 0] sdl_accel[opengl/x11]       frames=180 fps=60.0 cpu=235.0% (user 231.7% sys 3.3%) draw_ms mean=12.23 p50=12.43 p99=12.82 max=12.87 maxrss=149MB
+[exit 0] sdl_software[software/x11]  frames=180 fps=60.0 cpu=232.0% (user 229.8% sys 2.2%) draw_ms mean=13.17 p50=13.63 p99=15.32 max=15.36 maxrss=146MB
+[exit 0] gtk_window[cairo]           frames=180 fps=60.0 cpu=19.0% (user 18.6% sys 0.5%) draw_ms mean=2.85 p50=2.88 p99=3.14 max=3.71 maxrss=81MB
+
+== Wayland (weston headless)
+[exit 0] gtk wayland: gtk_window[cairo]           frames=180 fps=60.0 cpu=60.0% (user 33.4% sys 26.7%) draw_ms mean=3.71 p50=3.72 p99=4.27 max=4.33 maxrss=69MB
+[exit 0] sdl wayland software: sdl_software[software/wayland] frames=180 fps=60.0 cpu=230.3% (user 226.8% sys 3.5%) draw_ms mean=12.69 p50=13.15 p99=14.84 max=14.88 maxrss=173MB
+[exit 0] sdl wayland accel: sdl_accel[opengl/wayland]   frames=180 fps=60.0 cpu=244.5% (user 241.6% sys 2.9%) draw_ms mean=12.51 p50=12.85 p99=13.90 max=14.04 maxrss=168MB
+[exit 0] sdl auto (wayland only): sdl_software[software/wayland] frames=180 fps=60.0 cpu=233.7% (user 228.2% sys 5.5%) draw_ms mean=12.74 p50=13.15 p99=14.80 max=14.89 maxrss=173MB
+
+== prebuilt CARLA clients (built on Ubuntu 22.04, mounted at /apps): do they start here?
+manual_control       starts: usage: manual_control [--config FILE] [--host H] [-p P] [-a] [--res WIDTHxHEIGHT]
+manual_control_gtk   starts: usage: manual_control_gtk [--config FILE] [--host H] [-p P] [-a] [--res WIDTHxHEIGHT]
+
+done

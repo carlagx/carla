@@ -56,7 +56,7 @@ if "%BUILD_DIR%" == "" set BUILD_DIR=%~dp0
 if not "%BUILD_DIR:~-1%"=="\" set BUILD_DIR=%BUILD_DIR%\
 
 rem If not defined, use Visual Studio 2022 as tool set
-if "%TOOLSET%" == "" set TOOLSET=msvc-14.3
+if "%TOOLSET%" == "" set TOOLSET=msvc-14.4
 
 rem If is not set, set the number of parallel jobs to the number of CPU threads
 if "%NUMBER_OF_ASYNC_JOBS%" == "" set NUMBER_OF_ASYNC_JOBS=%NUMBER_OF_PROCESSORS%
@@ -115,7 +115,7 @@ if not exist "%BOOST_SRC_DIR%" (
 cd "%BOOST_SRC_DIR%"
 if not exist "b2.exe" (
     echo %FILE_N% Generating build...
-    call bootstrap.bat vc141
+    call .\bootstrap.bat vc141
 )
 
 if %errorlevel% neq 0 goto error_bootstrap
@@ -124,8 +124,27 @@ rem This fix some kind of issue installing headers of boost < 1.67, not installi
 rem echo %FILE_N% Packing headers...
 rem b2 headers link=static
 
+rem ============================================================================
+rem -- Configure Boost.Python against the base Python installation -------------
+rem -- (avoids b2 picking up a venv Python that has no include/libs folders) ---
+rem ============================================================================
+
+set B2_USER_CONFIG=
+set PYTHON_BASE=
+for /f "delims=" %%i in ('python -c "import sys; print(sys.base_prefix)"') do set PYTHON_BASE=%%i
+if "%PYTHON_BASE%" == "" goto skip_python_config
+set PYTHON_VER=
+for /f "delims=" %%i in ('python -c "import sys; print(f'{sys.version_info[0]}.{sys.version_info[1]}')"') do set PYTHON_VER=%%i
+if "%PYTHON_VER%" == "" goto skip_python_config
+set PYTHON_BASE_FWD=%PYTHON_BASE:\=/%
+echo %FILE_N% Configuring Boost.Python with Python %PYTHON_VER% from "%PYTHON_BASE%".
+echo using python : %PYTHON_VER% : "%PYTHON_BASE_FWD%/python.exe" : "%PYTHON_BASE_FWD%/include" : "%PYTHON_BASE_FWD%/libs" ; > user-config.jam
+set B2_USER_CONFIG=--user-config=user-config.jam
+:skip_python_config
+
 echo %FILE_N% Building...
-b2 -j%NUMBER_OF_ASYNC_JOBS%^
+.\b2 -j%NUMBER_OF_ASYNC_JOBS%^
+    %B2_USER_CONFIG%^
     headers^
     --layout=versioned^
     --build-dir=.\build^

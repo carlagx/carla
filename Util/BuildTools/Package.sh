@@ -324,7 +324,12 @@ if ${DO_CARLA_RELEASE} ; then
     cp -r "./Unreal/CarlaUE4/Plugins/Carla/CarlaDependencies/lib" "${DESTINATION}/CarlaUE4/Plugins/Carla/CarlaDependencies"
   fi
 
-  copy_if_changed "./Unreal/CarlaUE4/Content/Carla/HDMaps/*.pcd" "${DESTINATION}/HDMaps/"
+  # Copy only the HD map point clouds for the cooked maps (Town01, Town04) to keep the
+  # package small. The .pcd files for non-packaged towns would otherwise add ~1 GB.
+  # To include another town's HD map, add its <Town> to this list.
+  for HDMAP_TOWN in Town01 Town04 ; do
+    copy_if_changed "./Unreal/CarlaUE4/Content/Carla/HDMaps/${HDMAP_TOWN}.pcd" "${DESTINATION}/HDMaps/"
+  done
   copy_if_changed "./Unreal/CarlaUE4/Content/Carla/HDMaps/Readme.md" "${DESTINATION}/HDMaps/README"
 
   popd >/dev/null
